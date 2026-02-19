@@ -1,3 +1,6 @@
+// "Barrel file" for core type exports.
+// Consumers can import from "src/core" instead of deep file paths.
+// `export type` ensures these imports disappear at runtime and are type-only.
 export type {
   BattleState,
   BossPartState,

@@ -11,6 +11,7 @@ This project is a modular web-based educational combat game.
 3. Animation must subscribe to engine events.
 4. Content must be data-driven (JSON-based).
 5. No mode may directly modify global game state.
+6. Make thorough use of tutorial-style comments across code components and core contracts and ensure the comments remain up-to-date
 
 ---
 
