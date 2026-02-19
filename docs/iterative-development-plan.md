@@ -58,9 +58,9 @@ Iteration 0 exit checklist
 
 Issue `I1-1`: Add schema-aligned fixtures
 
-- [ ] Create `src/content/sentences.json`.
-- [ ] Create `src/content/bosses.json`.
-- [ ] Ensure sentence `difficulty` is numeric and constrained to `1-5`.
+- [x] Create `src/content/sentences.json`.
+- [x] Create `src/content/bosses.json`.
+- [x] Ensure sentence `difficulty` is numeric and constrained to `1-5`.
 
 Issue `I1-2`: Add content validation tests
 
