@@ -16,7 +16,7 @@ Source of truth: `AGENTS.md` takes precedence over this document
 
 | Iteration | System Focus | Issue Group | Depends On | Status |
 | --- | --- | --- | --- | --- |
-| 0 | Foundation | `I0-*` | None | Todo |
+| 0 | Foundation | `I0-*` | None | In Progress |
 | 1 | Content Contracts | `I1-*` | Iteration 0 | Todo |
 | 2 | Core Validation | `I2-*` | Iteration 1 | Todo |
 | 3 | Basic UI Shell | `I3-*` | Iteration 2 | Todo |
@@ -32,9 +32,9 @@ Source of truth: `AGENTS.md` takes precedence over this document
 
 Issue `I0-1`: Bootstrap project shell
 
-- [ ] Create Vite + React + TypeScript app scaffold.
-- [ ] Enable strict TypeScript settings.
-- [ ] Add baseline scripts for `build`, `test`, and `typecheck`.
+- [x] Create Vite + React + TypeScript app scaffold.
+- [x] Enable strict TypeScript settings.
+- [x] Add baseline scripts for `build`, `test`, and `typecheck`.
 
 Issue `I0-2`: Create architecture-aligned folder structure
 
@@ -50,7 +50,7 @@ Issue `I0-3`: Define base types
 
 Iteration 0 exit checklist
 
-- [ ] Project builds locally.
+- [x] Project builds locally.
 - [ ] Folder boundaries match `AGENTS.md`.
 - [ ] Base types compile under strict mode.
 
