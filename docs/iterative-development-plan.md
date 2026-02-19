@@ -38,9 +38,9 @@ Issue `I0-1`: Bootstrap project shell
 
 Issue `I0-2`: Create architecture-aligned folder structure
 
-- [ ] Create `/src/core`, `/src/modes`, `/src/boss`, `/src/content`, `/src/ui`, `/src/animation`.
-- [ ] Add placeholder files where needed to lock structure.
-- [ ] Verify `/core` has no React imports.
+- [x] Create `/src/core`, `/src/modes`, `/src/boss`, `/src/content`, `/src/ui`, `/src/animation`.
+- [x] Add placeholder files where needed to lock structure.
+- [x] Verify `/core` has no React imports.
 
 Issue `I0-3`: Define base types
 
@@ -51,7 +51,7 @@ Issue `I0-3`: Define base types
 Iteration 0 exit checklist
 
 - [x] Project builds locally.
-- [ ] Folder boundaries match `AGENTS.md`.
+- [x] Folder boundaries match `AGENTS.md`.
 - [ ] Base types compile under strict mode.
 
 ### Iteration 1: Content Contracts (`I1-*`)
