@@ -16,7 +16,7 @@ Source of truth: `AGENTS.md` takes precedence over this document
 
 | Iteration | System Focus | Issue Group | Depends On | Status |
 | --- | --- | --- | --- | --- |
-| 0 | Foundation | `I0-*` | None | In Progress |
+| 0 | Foundation | `I0-*` | None | Done |
 | 1 | Content Contracts | `I1-*` | Iteration 0 | Todo |
 | 2 | Core Validation | `I2-*` | Iteration 1 | Todo |
 | 3 | Basic UI Shell | `I3-*` | Iteration 2 | Todo |
@@ -44,15 +44,15 @@ Issue `I0-2`: Create architecture-aligned folder structure
 
 Issue `I0-3`: Define base types
 
-- [ ] Add shared core types including `ValidationResult`.
-- [ ] Add initial state contracts: `currentSentence`, `currentMode`, `bossState`, `comboState`, `scoreState`.
-- [ ] Export types from a single stable entrypoint.
+- [x] Add shared core types including `ValidationResult`.
+- [x] Add initial state contracts: `currentSentence`, `currentMode`, `bossState`, `comboState`, `scoreState`.
+- [x] Export types from a single stable entrypoint.
 
 Iteration 0 exit checklist
 
 - [x] Project builds locally.
 - [x] Folder boundaries match `AGENTS.md`.
-- [ ] Base types compile under strict mode.
+- [x] Base types compile under strict mode.
 
 ### Iteration 1: Content Contracts (`I1-*`)
 
