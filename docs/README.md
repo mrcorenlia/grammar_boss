@@ -10,7 +10,7 @@ This folder contains the project specification for Grammar Boss Battle.
 2. `docs/technical-spec.md`: Architecture rules, engine contracts, state flow, and implementation layers.
 3. `docs/data-content-spec.md`: Sentence/boss schemas, content constraints, and examples.
 4. `docs/roadmap-mvp.md`: 4-6 week MVP timeline and delivery targets.
-5. `docs/iterative-development-plan.md`: Step-by-step build plan we will execute together.
+5. `docs/iterative-development-plan.md`: Issue-style task board with per-iteration checklists.
 
 ## Documentation Maintenance Rules
 

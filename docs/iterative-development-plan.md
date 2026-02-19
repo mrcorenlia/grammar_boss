@@ -1,155 +1,269 @@
-# Iterative Development Plan
+# Iterative Development Task Board
 
-Version: 0.1  
-Collaboration model: one system at a time, AGENTS-first
+Version: 0.2  
+Format: issue-style board with checklists  
+Source of truth: `AGENTS.md` takes precedence over this document
 
-## 1. Working Rules
+## 1. Board Rules
 
-1. Follow `AGENTS.md` as the top-level architecture contract.
-2. Modify one system per iteration.
-3. Keep TypeScript strict typing at each step.
-4. Every validator change includes unit tests.
-5. Update relevant `/docs` files in the same change.
+1. Work one iteration at a time.
+2. Complete all checklist items in an iteration before starting the next.
+3. Keep architecture boundaries from `AGENTS.md` intact.
+4. Add or update unit tests with every validation change.
+5. Update affected `/docs` files in the same change as code.
 
-## 2. Iteration Sequence
+## 2. Board Overview
 
-### Iteration 0: Foundation
+| Iteration | System Focus | Issue Group | Depends On | Status |
+| --- | --- | --- | --- | --- |
+| 0 | Foundation | `I0-*` | None | Todo |
+| 1 | Content Contracts | `I1-*` | Iteration 0 | Todo |
+| 2 | Core Validation | `I2-*` | Iteration 1 | Todo |
+| 3 | Basic UI Shell | `I3-*` | Iteration 2 | Todo |
+| 4 | Score and Combo | `I4-*` | Iteration 3 | Todo |
+| 5 | Boss HP Integration | `I5-*` | Iteration 4 | Todo |
+| 6 | Additional Modes | `I6-*` | Iteration 5 | Todo |
+| 7 | Animation and Part Destruction | `I7-*` | Iteration 5 | Todo |
+| 8 | Polish and Adaptive Difficulty | `I8-*` | Iteration 6, 7 | Todo |
 
-Scope:
+## 3. Issues and Checklists
 
-1. Bootstrap Vite + React + TypeScript strict config.
-2. Create `/src` folders from target architecture.
-3. Add core shared types.
+### Iteration 0: Foundation (`I0-*`)
 
-Done when:
+Issue `I0-1`: Bootstrap project shell
 
-1. Project builds locally.
-2. Folder boundaries exist and are enforced by convention.
-3. `ValidationResult` and state types are defined.
+- [ ] Create Vite + React + TypeScript app scaffold.
+- [ ] Enable strict TypeScript settings.
+- [ ] Add baseline scripts for `build`, `test`, and `typecheck`.
 
-### Iteration 1: Content Contracts
+Issue `I0-2`: Create architecture-aligned folder structure
 
-Scope:
+- [ ] Create `/src/core`, `/src/modes`, `/src/boss`, `/src/content`, `/src/ui`, `/src/animation`.
+- [ ] Add placeholder files where needed to lock structure.
+- [ ] Verify `/core` has no React imports.
 
-1. Add `sentences.json` and `bosses.json` with schema-aligned fixtures.
-2. Add lightweight schema validation utilities/tests.
-3. Guarantee token ids and difficulty constraints.
+Issue `I0-3`: Define base types
 
-Done when:
+- [ ] Add shared core types including `ValidationResult`.
+- [ ] Add initial state contracts: `currentSentence`, `currentMode`, `bossState`, `comboState`, `scoreState`.
+- [ ] Export types from a single stable entrypoint.
 
-1. Fixture content loads without runtime errors.
-2. Invalid content fails tests.
-3. No mode contains hardcoded answer data.
+Iteration 0 exit checklist
 
-### Iteration 2: Core Validation Engine
+- [ ] Project builds locally.
+- [ ] Folder boundaries match `AGENTS.md`.
+- [ ] Base types compile under strict mode.
 
-Scope:
+### Iteration 1: Content Contracts (`I1-*`)
 
-1. Implement pure validator interfaces in `/core`.
-2. Implement POS mode validation first.
-3. Add deterministic/non-mutation tests.
+Issue `I1-1`: Add schema-aligned fixtures
 
-Done when:
+- [ ] Create `src/content/sentences.json`.
+- [ ] Create `src/content/bosses.json`.
+- [ ] Ensure sentence `difficulty` is numeric and constrained to `1-5`.
 
-1. POS validator accepts `(userInput, sentence)` and returns `ValidationResult`.
-2. Tests cover pass/fail and mutation guard behavior.
-3. No React dependencies inside `/core`.
+Issue `I1-2`: Add content validation tests
 
-### Iteration 3: Basic UI Shell
+- [ ] Add tests that reject duplicate token ids.
+- [ ] Add tests that reject invalid difficulty values.
+- [ ] Add tests that reject missing required fields.
 
-Scope:
+Issue `I1-3`: Remove hardcoded answer coupling
 
-1. Render tokenized sentence UI from JSON content.
-2. Add mode selection shell.
-3. Connect UI actions to `battleEngine` entrypoint only.
+- [ ] Confirm mode components do not embed answer keys.
+- [ ] Ensure answer data is loaded only from content files.
 
-Done when:
+Iteration 1 exit checklist
 
-1. UI uses token ids for interaction mapping.
-2. Validation feedback appears for POS mode.
-3. UI cannot mutate global state directly.
+- [ ] Content fixtures load successfully.
+- [ ] Invalid fixtures fail tests.
+- [ ] Content rules from `AGENTS.md` are satisfied.
 
-### Iteration 4: Score and Combo
+### Iteration 2: Core Validation Engine (`I2-*`)
 
-Scope:
+Issue `I2-1`: Implement validator interfaces
 
-1. Implement score calculation module.
-2. Implement combo module and multiplier limits.
-3. Integrate score/combo into engine result pipeline.
+- [ ] Create validator interface accepting `(userInput, sentence)`.
+- [ ] Standardize validator outputs to `ValidationResult`.
+- [ ] Ensure no validator mutates inputs.
 
-Done when:
+Issue `I2-2`: Implement POS tagging validator
 
-1. Correct rounds increase combo.
-2. Incorrect rounds reset combo.
-3. Score output is reproducible in tests.
+- [ ] Implement deterministic POS validation logic.
+- [ ] Include `mistakes` and score breakdown output.
+- [ ] Add round-level `correct` behavior.
 
-### Iteration 5: Boss HP Integration
+Issue `I2-3`: Add validator unit tests
 
-Scope:
+- [ ] Test pass and fail cases for POS mode.
+- [ ] Add mutation-guard tests.
+- [ ] Add determinism tests with repeated inputs.
 
-1. Implement boss model and sequential damage logic.
-2. Add HP bar UI.
-3. Emit boss damage events from engine.
+Iteration 2 exit checklist
 
-Done when:
+- [ ] POS validator is production-usable.
+- [ ] Validator tests pass.
+- [ ] `/core` remains UI-agnostic.
 
-1. Overflow damage correctly carries between parts.
-2. Boss state updates are event and engine driven.
-3. `/boss` module contains no scoring logic.
+### Iteration 3: Basic UI Shell (`I3-*`)
 
-### Iteration 6: Additional Learning Modes
+Issue `I3-1`: Token-driven sentence renderer
 
-Scope:
+- [ ] Render sentence tokens from content.
+- [ ] Bind interactions by token id, not index.
+- [ ] Do not assume fixed token order.
 
-1. Add Structure mode validator + UI.
-2. Add GN linking mode validator + UI.
-3. Add Agreement mode validator + UI.
+Issue `I3-2`: Mode shell and routing
 
-Done when:
+- [ ] Add mode switch UI container.
+- [ ] Add POS mode UI interaction flow.
+- [ ] Route interaction payloads to `battleEngine` only.
 
-1. Each mode has isolated validator tests.
-2. Mode UI components contain interaction logic only.
-3. Engine remains mode-agnostic through validator registry.
+Issue `I3-3`: Validation feedback UI
 
-### Iteration 7: Part Destruction and Animation
+- [ ] Display correctness status.
+- [ ] Display mistakes list.
+- [ ] Keep validation logic out of `/modes`.
 
-Scope:
+Iteration 3 exit checklist
 
-1. Add SVG part-level state and destruction rendering.
-2. Implement flash/shake/crack/explode sequence.
-3. Ensure animation idempotency under repeated events.
+- [ ] POS interaction works end-to-end through engine.
+- [ ] UI does not mutate global state directly.
+- [ ] Token-driven interaction rules are enforced.
 
-Done when:
+### Iteration 4: Score and Combo (`I4-*`)
 
-1. Destroyed parts are removed by stable SVG ids.
-2. Repeat events do not double-apply visual state.
-3. Animation is class/event-driven, not inline-style driven.
+Issue `I4-1`: Score module
 
-### Iteration 8: Polish and Adaptive Difficulty
+- [ ] Add base score calculation.
+- [ ] Add optional speed bonus hook.
+- [ ] Add deterministic score tests.
 
-Scope:
+Issue `I4-2`: Combo module
 
-1. Add optional timer and speed bonus.
-2. Implement first-pass adaptive sentence selector.
-3. Tune challenge pacing and progression.
+- [ ] Add combo increment on fully correct rounds.
+- [ ] Add combo reset on incorrect rounds.
+- [ ] Cap multiplier progression at 3x.
 
-Done when:
+Issue `I4-3`: Engine integration
 
-1. `PlayerStats` updates per round.
-2. Sentence selection weights weaker tags.
-3. No architecture boundary regressions are introduced.
+- [ ] Integrate score and combo outputs into round result.
+- [ ] Expose score/combo state through engine state transition.
+- [ ] Add integration tests for score + combo interactions.
 
-## 3. Definition of Done Per Iteration
+Iteration 4 exit checklist
 
-1. Code and tests pass for touched modules.
-2. Architecture constraints in `AGENTS.md` remain satisfied.
-3. Relevant spec docs in `/docs` are updated.
-4. Changelog note is added in commit or PR description.
+- [ ] Score results are reproducible.
+- [ ] Combo rules behave as specified.
+- [ ] No scoring logic leaks into `/boss`.
 
-## 4. How We Will Work Through This Together
+### Iteration 5: Boss HP Integration (`I5-*`)
 
-1. Start each iteration by selecting exactly one scope above.
-2. Implement only that scope plus required tests.
-3. Run validation/tests for touched systems.
-4. Update docs before closing the iteration.
-5. Review acceptance criteria and then proceed to next iteration.
+Issue `I5-1`: Boss data model
+
+- [ ] Implement total HP and part HP structures.
+- [ ] Map boss parts to stable SVG ids.
+- [ ] Ensure part independence in state representation.
+
+Issue `I5-2`: Sequential damage system
+
+- [ ] Apply damage to active part first.
+- [ ] Carry overflow damage to next part.
+- [ ] Emit part-destroyed and boss-defeated events.
+
+Issue `I5-3`: Boss UI baseline
+
+- [ ] Add HP bar component.
+- [ ] Reflect boss HP updates from engine state.
+- [ ] Confirm `/boss` does not calculate score.
+
+Iteration 5 exit checklist
+
+- [ ] Damage flows through parts sequentially.
+- [ ] HP UI reflects data state.
+- [ ] Engine is the only state transition path.
+
+### Iteration 6: Additional Learning Modes (`I6-*`)
+
+Issue `I6-1`: Structure mode
+
+- [ ] Implement structure validator in `/core`.
+- [ ] Add Structure mode UI interactions.
+- [ ] Add `validateStructureMode` tests.
+
+Issue `I6-2`: GN linking mode
+
+- [ ] Implement GN link validator in `/core`.
+- [ ] Add GN link mode UI interactions.
+- [ ] Add GN link validator tests.
+
+Issue `I6-3`: Agreement mode
+
+- [ ] Implement agreement validator in `/core`.
+- [ ] Add Agreement mode UI interactions.
+- [ ] Add agreement validator tests.
+
+Iteration 6 exit checklist
+
+- [ ] All new validators are pure and tested.
+- [ ] `/modes` contains no validation logic.
+- [ ] Engine remains mode-agnostic via validator dispatch.
+
+### Iteration 7: Part Destruction and Animation (`I7-*`)
+
+Issue `I7-1`: Visual damage states
+
+- [ ] Add flash, shake, and crack states tied to engine events.
+- [ ] Use CSS classes over inline styles.
+- [ ] Keep animation methods idempotent.
+
+Issue `I7-2`: Part destruction flow
+
+- [ ] Trigger explosion on destroyed parts.
+- [ ] Remove SVG nodes by stable part ids.
+- [ ] Add sound hook points for destroyed events.
+
+Issue `I7-3`: Animation reliability tests
+
+- [ ] Add tests for repeated event idempotency.
+- [ ] Add tests preventing duplicate destruction effects.
+- [ ] Add tests for class cleanup between rounds.
+
+Iteration 7 exit checklist
+
+- [ ] Visual state consistently reflects data state.
+- [ ] Repeat events do not double-apply effects.
+- [ ] SVG ids remain stable and mapped.
+
+### Iteration 8: Polish and Adaptive Difficulty (`I8-*`)
+
+Issue `I8-1`: Timing and round polish
+
+- [ ] Add timer UI and timing capture hooks.
+- [ ] Add optional speed bonus calculation path.
+- [ ] Tune round pacing for 10-30 second loops.
+
+Issue `I8-2`: Adaptive difficulty selector
+
+- [ ] Add `PlayerStats` tracking model.
+- [ ] Update stats after each round.
+- [ ] Weight sentence selection toward weak tags.
+
+Issue `I8-3`: Final hardening
+
+- [ ] Run full test suite and type checks.
+- [ ] Review architecture boundaries against `AGENTS.md`.
+- [ ] Update docs with final MVP behavior.
+
+Iteration 8 exit checklist
+
+- [ ] Adaptive selector works from tracked stats.
+- [ ] MVP behavior is stable across all modes.
+- [ ] Documentation reflects implemented behavior.
+
+## 4. Global Completion Checklist (Every Iteration)
+
+- [ ] Code and tests pass for touched modules.
+- [ ] Architecture constraints from `AGENTS.md` remain satisfied.
+- [ ] Relevant docs in `/docs` are updated.
+- [ ] PR or commit includes change summary and test notes.
