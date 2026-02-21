@@ -57,6 +57,11 @@ export type ValidationResult = {
   mistakes: string[];
   breakdown?: Record<string, unknown>;
 };
+
+export type ModeValidator<UserInput = unknown> = (
+  userInput: UserInput,
+  sentence: Sentence
+) => ValidationResult;
 ```
 
 ### 4.2 Battle Engine Contract
@@ -109,10 +114,9 @@ To prevent hardcoded answer coupling:
 ```text
 /src
   /core
-    battleEngine.ts
     validation.ts
-    scoring.ts
-    combo.ts
+    contentValidation.ts
+    contentRepository.ts
     types.ts
 
   /content

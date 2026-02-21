@@ -18,7 +18,7 @@ Source of truth: `AGENTS.md` takes precedence over this document
 | --- | --- | --- | --- | --- |
 | 0 | Foundation | `I0-*` | None | Done |
 | 1 | Content Contracts | `I1-*` | Iteration 0 | Done |
-| 2 | Core Validation | `I2-*` | Iteration 1 | Todo |
+| 2 | Core Validation | `I2-*` | Iteration 1 | In Progress |
 | 3 | Basic UI Shell | `I3-*` | Iteration 2 | Todo |
 | 4 | Score and Combo | `I4-*` | Iteration 3 | Todo |
 | 5 | Boss HP Integration | `I5-*` | Iteration 4 | Todo |
@@ -83,9 +83,9 @@ Iteration 1 exit checklist
 
 Issue `I2-1`: Implement validator interfaces
 
-- [ ] Create validator interface accepting `(userInput, sentence)`.
-- [ ] Standardize validator outputs to `ValidationResult`.
-- [ ] Ensure no validator mutates inputs.
+- [x] Create validator interface accepting `(userInput, sentence)`.
+- [x] Standardize validator outputs to `ValidationResult`.
+- [x] Ensure no validator mutates inputs.
 
 Issue `I2-2`: Implement POS tagging validator
 

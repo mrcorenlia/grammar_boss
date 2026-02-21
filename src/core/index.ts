@@ -26,3 +26,7 @@ export { validateBossesContent, validateSentencesContent } from "./contentValida
 
 // Content repository exports used by modes to avoid inline answer coupling.
 export { loadBossesFromContent, loadSentencesFromContent } from "./contentRepository"
+
+// Gameplay validation contracts used by the engine and mode validators.
+export type { ModeValidator, ValidatorRegistry } from "./validation"
+export { assertValidationResult, executeValidator, isValidationResult } from "./validation"

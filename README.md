@@ -2,7 +2,7 @@
 
 Grammar Boss Battle is a modular web-based educational combat game. Players defeat bosses by correctly analyzing French grammar in short challenge loops.
 
-This repository has completed Iteration 1 (Content Contracts), building on the Iteration 0 scaffold (foundational TypeScript contracts, seed content, and the initial React/Vite app shell).
+This repository is currently in Iteration 2 (Core Validation Engine), after completing Iteration 1 (Content Contracts) on top of the Iteration 0 scaffold.
 
 ## Guiding Architecture
 
@@ -36,6 +36,10 @@ Implemented now:
 Completed recently:
 
 - Iteration 1 content contract hardening and validation coverage.
+
+In progress now:
+
+- Iteration 2 core validation interfaces and contracts.
 
 Planned next layers (see docs roadmap):
 
