@@ -125,9 +125,10 @@ Example SVG structure:
 
 1. Every sentence must conform to schema.
 2. No inline hardcoded answers in mode code.
-3. `difficulty` must be numeric and restricted to 1-5.
-4. Token ids must be unique per sentence.
-5. All mode logic must reference token ids, not indices.
+3. Answer-bearing data must be loaded from `src/content/*.json` through core content loading APIs.
+4. `difficulty` must be numeric and restricted to 1-5.
+5. Token ids must be unique per sentence.
+6. All mode logic must reference token ids, not indices.
 
 ## 6. Phase 2 Adaptive Difficulty Data
 

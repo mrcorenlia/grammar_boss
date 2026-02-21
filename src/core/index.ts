@@ -3,6 +3,8 @@
 // `export type` ensures these imports disappear at runtime and are type-only.
 export type {
   BattleState,
+  BossTemplate,
+  BossTemplatePart,
   BossPartState,
   BossState,
   ComboState,
@@ -21,3 +23,6 @@ export type {
 // Content validation exports used by tests and future fixture checks.
 export type { ContentValidationError, ContentValidationResult } from "./contentValidation"
 export { validateBossesContent, validateSentencesContent } from "./contentValidation"
+
+// Content repository exports used by modes to avoid inline answer coupling.
+export { loadBossesFromContent, loadSentencesFromContent } from "./contentRepository"

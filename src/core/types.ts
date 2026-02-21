@@ -87,6 +87,25 @@ export type Sentence = {
   };
 };
 
+// Template data used to initialize boss encounters from JSON content.
+// This is separate from BossState because templates are static fixture data.
+export type BossTemplatePart = {
+  id: string;
+  name: string;
+  maxHP: number;
+  currentHP: number;
+  svgElementId: string;
+};
+
+// Boss content record loaded from fixtures in src/content/bosses.json.
+export type BossTemplate = {
+  id: string;
+  name: string;
+  baseHP: number;
+  allowedTags: string[];
+  parts: BossTemplatePart[];
+};
+
 // Supported player interaction modes in the MVP.
 export type GameMode = "tagging" | "structure" | "gn-link" | "agreement";
 

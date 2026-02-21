@@ -90,6 +90,14 @@ Animation layer must:
 3. Use stable SVG part ids.
 4. Prefer CSS classes over inline styles.
 
+### 4.5 Content Loading Contract
+
+To prevent hardcoded answer coupling:
+
+1. Mode code must not define inline answer keys.
+2. Mode code must consume answer-bearing data via core content loading APIs.
+3. Core content loaders are responsible for reading local JSON fixtures and validating shape before use.
+
 ## 5. UI Interaction Rules
 
 1. Token rendering is token-driven.
