@@ -31,6 +31,10 @@ export { loadBossesFromContent, loadSentencesFromContent } from "./contentReposi
 export type { ModeValidator, ValidatorRegistry } from "./validation"
 export { assertValidationResult, executeValidator, isValidationResult } from "./validation"
 
+// battleEngine exports used by UI modes for validation routing.
+export type { BattleEngine, RoundPayload, TaggingRoundPayload } from "./battleEngine"
+export { createBattleEngine } from "./battleEngine"
+
 // Tag mode validator exports.
 export type { TagModeUserInput } from "./validateTagMode"
 export { validateTagMode } from "./validateTagMode"

@@ -115,9 +115,9 @@ Issue `I3-1`: Token-driven sentence renderer
 
 Issue `I3-2`: Mode shell and routing
 
-- [ ] Add mode switch UI container.
-- [ ] Add POS mode UI interaction flow.
-- [ ] Route interaction payloads to `battleEngine` only.
+- [x] Add mode switch UI container.
+- [x] Add POS mode UI interaction flow.
+- [x] Route interaction payloads to `battleEngine` only.
 
 Issue `I3-3`: Validation feedback UI
 

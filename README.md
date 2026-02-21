@@ -40,7 +40,7 @@ Completed recently:
 
 In progress now:
 
-- Iteration 3 token-driven sentence renderer baseline.
+- Iteration 3 mode shell, token-driven rendering, and POS interaction routing through `battleEngine`.
 
 Planned next layers (see docs roadmap):
 

@@ -118,6 +118,7 @@ To prevent hardcoded answer coupling:
 ```text
 /src
   /core
+    battleEngine.ts
     validation.ts
     validateTagMode.ts
     contentValidation.ts
