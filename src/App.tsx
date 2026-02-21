@@ -9,7 +9,7 @@ function App() {
     <main className="app">
       {/* These nodes render like normal HTML elements in the browser. */}
       <h1>Grammar Boss Battle</h1>
-      <p>Iteration 2 core validation contracts are in progress.</p>
+      <p>Iteration 2 core validation engine checklist is complete.</p>
     </main>
   );
 }

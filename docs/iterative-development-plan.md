@@ -18,7 +18,7 @@ Source of truth: `AGENTS.md` takes precedence over this document
 | --- | --- | --- | --- | --- |
 | 0 | Foundation | `I0-*` | None | Done |
 | 1 | Content Contracts | `I1-*` | Iteration 0 | Done |
-| 2 | Core Validation | `I2-*` | Iteration 1 | In Progress |
+| 2 | Core Validation | `I2-*` | Iteration 1 | Done |
 | 3 | Basic UI Shell | `I3-*` | Iteration 2 | Todo |
 | 4 | Score and Combo | `I4-*` | Iteration 3 | Todo |
 | 5 | Boss HP Integration | `I5-*` | Iteration 4 | Todo |
@@ -101,9 +101,9 @@ Issue `I2-3`: Add validator unit tests
 
 Iteration 2 exit checklist
 
-- [ ] POS validator is production-usable.
-- [ ] Validator tests pass.
-- [ ] `/core` remains UI-agnostic.
+- [x] POS validator is production-usable.
+- [x] Validator tests pass.
+- [x] `/core` remains UI-agnostic.
 
 ### Iteration 3: Basic UI Shell (`I3-*`)
 
