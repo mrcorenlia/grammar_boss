@@ -17,3 +17,7 @@ export type {
   ValidationBreakdown,
   ValidationResult
 } from "./types";
+
+// Content validation exports used by tests and future fixture checks.
+export type { ContentValidationError, ContentValidationResult } from "./contentValidation"
+export { validateBossesContent, validateSentencesContent } from "./contentValidation"
