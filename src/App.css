@@ -14,3 +14,37 @@
   margin: 0;
   color: #334155;
 }
+
+.sentence-renderer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.token-chip {
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+  border-radius: 9999px;
+  padding: 0.4rem 0.8rem;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.token-chip:hover {
+  border-color: #94a3b8;
+}
+
+.token-chip--selected,
+.token-chip[aria-pressed="true"] {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #f8fafc;
+}
+
+.selection-summary {
+  margin-top: 1rem;
+}
