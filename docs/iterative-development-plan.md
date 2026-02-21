@@ -64,9 +64,9 @@ Issue `I1-1`: Add schema-aligned fixtures
 
 Issue `I1-2`: Add content validation tests
 
-- [ ] Add tests that reject duplicate token ids.
-- [ ] Add tests that reject invalid difficulty values.
-- [ ] Add tests that reject missing required fields.
+- [x] Add tests that reject duplicate token ids.
+- [x] Add tests that reject invalid difficulty values.
+- [x] Add tests that reject missing required fields.
 
 Issue `I1-3`: Remove hardcoded answer coupling
 
