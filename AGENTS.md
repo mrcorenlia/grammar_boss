@@ -93,7 +93,7 @@ Example:
 
 - All sentences must conform to schema.
 - No inline hardcoded answers.
-- Difficulty must be numeric (1–5).
+- Difficulty must be an integer (1–5).
 
 ---
 

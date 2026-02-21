@@ -60,7 +60,7 @@ Issue `I1-1`: Add schema-aligned fixtures
 
 - [x] Create `src/content/sentences.json`.
 - [x] Create `src/content/bosses.json`.
-- [x] Ensure sentence `difficulty` is numeric and constrained to `1-5`.
+- [x] Ensure sentence `difficulty` is an integer and constrained to `1-5`.
 
 Issue `I1-2`: Add content validation tests
 

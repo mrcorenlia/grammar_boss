@@ -76,7 +76,7 @@ export type PhraseGroup = {
 export type Sentence = {
   id: string;
   text: string;
-  // Difficulty range is expected to be 1-5 by project rules.
+  // Difficulty is expected to be an integer in the 1-5 range by project rules.
   difficulty: number;
   tags: string[];
   tokens: Token[];

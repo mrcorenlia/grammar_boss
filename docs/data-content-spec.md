@@ -9,7 +9,7 @@ Scope: Sentence content schema, boss schema, and validation-ready data rules
 type Sentence = {
   id: string;
   text: string;
-  difficulty: number; // 1-5
+  difficulty: number; // integer 1-5
   tags: string[];
   tokens: Token[];
   structure: {
@@ -126,7 +126,7 @@ Example SVG structure:
 1. Every sentence must conform to schema.
 2. No inline hardcoded answers in mode code.
 3. Answer-bearing data must be loaded from `src/content/*.json` through core content loading APIs.
-4. `difficulty` must be numeric and restricted to 1-5.
+4. `difficulty` must be an integer and restricted to 1-5.
 5. Token ids must be unique per sentence.
 6. All mode logic must reference token ids, not indices.
 

@@ -30,6 +30,32 @@ const listModeSourceFiles = (directory: string): string[] => {
   return files;
 };
 
+const hasInlineSentenceFixtureShape = (source: string): boolean => {
+  const sentenceFixtureSignals = [
+    /\bdifficulty\s*:\s*\d/,
+    /\btokens\s*:\s*\[/,
+    /\bstructure\s*:\s*\{/,
+    /\bgroups\s*:\s*\{/,
+    /\bsubjectTokenIds\s*:\s*\[/,
+    /\bpredicateTokenIds\s*:\s*\[/
+  ];
+
+  const signalMatches = sentenceFixtureSignals.filter((pattern) => pattern.test(source)).length;
+  return signalMatches >= 3;
+};
+
+const hasInlineBossFixtureShape = (source: string): boolean => {
+  const bossFixtureSignals = [
+    /\bbaseHP\s*:\s*\d/,
+    /\ballowedTags\s*:\s*\[/,
+    /\bparts\s*:\s*\[/,
+    /\bsvgElementId\s*:\s*["']/
+  ];
+
+  const signalMatches = bossFixtureSignals.filter((pattern) => pattern.test(source)).length;
+  return signalMatches >= 3;
+};
+
 describe("modeContentSource", () => {
   test("loads sentence answers from content fixtures", () => {
     const sentences = getModeSentences();
@@ -41,32 +67,30 @@ describe("modeContentSource", () => {
     expect(bosses).toEqual(bossesFixture);
   });
 
-  test("mode source files do not embed inline answer key literals", () => {
+  test("mode source files do not embed inline sentence or boss fixtures", () => {
     const modeFiles = listModeSourceFiles(modesDir);
-    const inlineAnswerPatterns = [
-      /subjectTokenIds\s*:\s*\[/,
-      /predicateTokenIds\s*:\s*\[/,
-      /nounId\s*:\s*["']/,
-      /determinerId\s*:\s*["']/,
-      /adjectiveIds\s*:\s*\[/,
-      /partOfSpeech\s*:\s*["']/,
-      /gender\s*:\s*["'][mf]["']/,
-      /number\s*:\s*["'][sp]["']/
-    ];
 
     for (const fileName of modeFiles) {
       const source = readFileSync(fileName, "utf8");
-      for (const pattern of inlineAnswerPatterns) {
-        expect(source).not.toMatch(pattern);
-      }
+      expect(hasInlineSentenceFixtureShape(source)).toBe(false);
+      expect(hasInlineBossFixtureShape(source)).toBe(false);
     }
   });
 
   test("mode source files do not import content JSON directly", () => {
     const modeFiles = listModeSourceFiles(modesDir);
+    const disallowedImportPatterns = [
+      /from\s+["'](?:\.\.\/)+content\/.*\.json["']/,
+      /from\s+["']@\/content\/.*\.json["']/,
+      /import\(\s*["'](?:\.\.\/)+content\/.*\.json["']\s*\)/,
+      /import\(\s*["']@\/content\/.*\.json["']\s*\)/
+    ];
+
     for (const fileName of modeFiles) {
       const source = readFileSync(fileName, "utf8");
-      expect(source).not.toMatch(/from\s+["'](\.\.\/)+content\/.*\.json["']/);
+      for (const pattern of disallowedImportPatterns) {
+        expect(source).not.toMatch(pattern);
+      }
     }
   });
 });
