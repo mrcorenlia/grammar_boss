@@ -17,14 +17,14 @@ Source of truth: `AGENTS.md` takes precedence over this document
 | Iteration | System Focus | Issue Group | Depends On | Status |
 | --- | --- | --- | --- | --- |
 | 0 | Foundation | `I0-*` | None | Done |
-| 1 | Content Contracts | `I1-*` | Iteration 0 | Todo |
-| 2 | Core Validation | `I2-*` | Iteration 1 | Todo |
-| 3 | Basic UI Shell | `I3-*` | Iteration 2 | Todo |
-| 4 | Score and Combo | `I4-*` | Iteration 3 | Todo |
-| 5 | Boss HP Integration | `I5-*` | Iteration 4 | Todo |
-| 6 | Additional Modes | `I6-*` | Iteration 5 | Todo |
-| 7 | Animation and Part Destruction | `I7-*` | Iteration 5 | Todo |
-| 8 | Polish and Adaptive Difficulty | `I8-*` | Iteration 6, 7 | Todo |
+| 1 | Content Contracts | `I1-*` | Iteration 1 | In Progress |
+| 2 | Core Validation | `I2-*` | Iteration 2 | Todo |
+| 3 | Basic UI Shell | `I3-*` | Iteration 3 | Todo |
+| 4 | Score and Combo | `I4-*` | Iteration 4 | Todo |
+| 5 | Boss HP Integration | `I5-*` | Iteration 5 | Todo |
+| 6 | Additional Modes | `I6-*` | Iteration 6 | Todo |
+| 7 | Animation and Part Destruction | `I7-*` | Iteration 7 | Todo |
+| 8 | Polish and Adaptive Difficulty | `I8-*` | Iteration 7, 8 | Todo |
 
 ## 3. Issues and Checklists
 
