@@ -95,9 +95,9 @@ Issue `I2-2`: Implement POS tagging validator
 
 Issue `I2-3`: Add validator unit tests
 
-- [ ] Test pass and fail cases for POS mode.
-- [ ] Add mutation-guard tests.
-- [ ] Add determinism tests with repeated inputs.
+- [x] Test pass and fail cases for POS mode.
+- [x] Add mutation-guard tests.
+- [x] Add determinism tests with repeated inputs.
 
 Iteration 2 exit checklist
 

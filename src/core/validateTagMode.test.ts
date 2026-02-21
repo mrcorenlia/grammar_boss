@@ -1,4 +1,5 @@
 import { loadSentencesFromContent } from "./contentRepository"
+import { executeValidator } from "./validation"
 import { validateTagMode, type TagModeUserInput } from "./validateTagMode"
 
 describe("validateTagMode", () => {
@@ -91,6 +92,29 @@ describe("validateTagMode", () => {
     const secondResult = validateTagMode(userInput, sentence)
 
     expect(firstResult).toEqual(secondResult)
+    expect(sentence).toEqual(originalSentence)
+    expect(userInput).toEqual(originalInput)
+  })
+
+  test("executeValidator enforces mutation guard for POS validator calls", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const userInput: TagModeUserInput = {
+      tokenIdToPOS: Object.fromEntries(
+        sentence.tokens.map((token) => [token.id, token.partOfSpeech])
+      )
+    }
+
+    const originalSentence = structuredClone(sentence)
+    const originalInput = structuredClone(userInput)
+
+    const result = executeValidator(validateTagMode, userInput, sentence)
+
+    expect(result.correct).toBe(true)
     expect(sentence).toEqual(originalSentence)
     expect(userInput).toEqual(originalInput)
   })
