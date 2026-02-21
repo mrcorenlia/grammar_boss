@@ -62,6 +62,10 @@ export type ModeValidator<UserInput = unknown> = (
   userInput: UserInput,
   sentence: Sentence
 ) => ValidationResult;
+
+export type TagModeUserInput = {
+  tokenIdToPOS: Record<string, string>;
+};
 ```
 
 ### 4.2 Battle Engine Contract
@@ -115,6 +119,7 @@ To prevent hardcoded answer coupling:
 /src
   /core
     validation.ts
+    validateTagMode.ts
     contentValidation.ts
     contentRepository.ts
     types.ts

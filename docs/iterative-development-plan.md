@@ -89,9 +89,9 @@ Issue `I2-1`: Implement validator interfaces
 
 Issue `I2-2`: Implement POS tagging validator
 
-- [ ] Implement deterministic POS validation logic.
-- [ ] Include `mistakes` and score breakdown output.
-- [ ] Add round-level `correct` behavior.
+- [x] Implement deterministic POS validation logic.
+- [x] Include `mistakes` and score breakdown output.
+- [x] Add round-level `correct` behavior.
 
 Issue `I2-3`: Add validator unit tests
 

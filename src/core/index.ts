@@ -30,3 +30,7 @@ export { loadBossesFromContent, loadSentencesFromContent } from "./contentReposi
 // Gameplay validation contracts used by the engine and mode validators.
 export type { ModeValidator, ValidatorRegistry } from "./validation"
 export { assertValidationResult, executeValidator, isValidationResult } from "./validation"
+
+// Tag mode validator exports.
+export type { TagModeUserInput } from "./validateTagMode"
+export { validateTagMode } from "./validateTagMode"
