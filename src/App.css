@@ -131,6 +131,11 @@
   color: #f8fafc;
 }
 
+.mode-switch__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .mode-panel {
   margin-top: 1.5rem;
   padding: 1rem;
@@ -218,6 +223,20 @@
 .pos-option:disabled {
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+.next-sentence {
+  margin-top: 1rem;
+}
+
+.next-sentence__button {
+  border: 1px solid #0f172a;
+  background: #0f172a;
+  color: #f8fafc;
+  border-radius: 0.6rem;
+  padding: 0.45rem 0.85rem;
+  font: inherit;
+  cursor: pointer;
 }
 
 .tagging-summary ul {

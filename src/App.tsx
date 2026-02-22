@@ -35,6 +35,7 @@ function App() {
   } | null>(null);
   const [bossState, setBossState] = useState(() => battleEngine.getState().bossState);
   const [secretAutofillVersion, setSecretAutofillVersion] = useState(0);
+  const [awaitingNextSentence, setAwaitingNextSentence] = useState(false);
   const isBossDefeated = bossState?.defeated ?? false;
 
   const visibleResult =
@@ -101,6 +102,7 @@ function App() {
           type="button"
           className={`mode-switch__button${currentMode === "tagging" ? " is-active" : ""}`}
           onClick={() => setCurrentMode("tagging")}
+          disabled={awaitingNextSentence}
         >
           Tagging
         </button>
@@ -108,6 +110,7 @@ function App() {
           type="button"
           className={`mode-switch__button${currentMode === "structure" ? " is-active" : ""}`}
           onClick={() => setCurrentMode("structure")}
+          disabled={awaitingNextSentence}
         >
           Structure
         </button>
@@ -115,6 +118,7 @@ function App() {
           type="button"
           className={`mode-switch__button${currentMode === "gn-link" ? " is-active" : ""}`}
           onClick={() => setCurrentMode("gn-link")}
+          disabled={awaitingNextSentence}
         >
           GN Link
         </button>
@@ -122,6 +126,7 @@ function App() {
           type="button"
           className={`mode-switch__button${currentMode === "agreement" ? " is-active" : ""}`}
           onClick={() => setCurrentMode("agreement")}
+          disabled={awaitingNextSentence}
         >
           Agreement
         </button>
@@ -132,11 +137,11 @@ function App() {
           sentence={currentSentence}
           lastResult={visibleResult}
           secretAutofillVersion={secretAutofillVersion}
-          submitDisabled={isBossDefeated}
+          submitDisabled={isBossDefeated || awaitingNextSentence}
           lockedTokenIds={roundConstraints.lockedInteractionIds}
           preAnsweredTokenIds={roundConstraints.preAnsweredInteractionIds}
           onSubmit={(payload) => {
-            if (isBossDefeated) {
+            if (isBossDefeated || awaitingNextSentence) {
               return;
             }
 
@@ -152,18 +157,18 @@ function App() {
               result
             });
             setBossState(result.bossState);
-            setSentenceIndex((currentIndex) => (currentIndex + 1) % sentences.length);
+            setAwaitingNextSentence(!result.bossState?.defeated);
           }}
         />
       ) : currentMode === "structure" ? (
         <StructureMode
           sentence={currentSentence}
           lastResult={visibleResult}
-          submitDisabled={isBossDefeated}
+          submitDisabled={isBossDefeated || awaitingNextSentence}
           lockedPartIds={roundConstraints.lockedInteractionIds}
           preAnsweredPartIds={roundConstraints.preAnsweredInteractionIds}
           onSubmit={(payload) => {
-            if (isBossDefeated) {
+            if (isBossDefeated || awaitingNextSentence) {
               return;
             }
 
@@ -178,7 +183,7 @@ function App() {
               result
             });
             setBossState(result.bossState);
-            setSentenceIndex((currentIndex) => (currentIndex + 1) % sentences.length);
+            setAwaitingNextSentence(!result.bossState?.defeated);
           }}
         />
       ) : (
@@ -187,6 +192,22 @@ function App() {
           <p>This mode shell is not implemented yet.</p>
         </section>
       )}
+
+      {awaitingNextSentence && !isBossDefeated ? (
+        <section className="next-sentence">
+          <button
+            type="button"
+            className="next-sentence__button"
+            onClick={() => {
+              setSentenceIndex((currentIndex) => (currentIndex + 1) % sentences.length);
+              setAwaitingNextSentence(false);
+              setLastResult(null);
+            }}
+          >
+            Next Sentence
+          </button>
+        </section>
+      ) : null}
     </main>
   );
 }

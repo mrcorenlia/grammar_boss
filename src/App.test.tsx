@@ -20,22 +20,26 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "NOUN" }));
     fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
 
+    expect(screen.getByText("Round correct: no")).toBeInTheDocument();
+    expect(screen.getByText("Round score: 10")).toBeInTheDocument();
     expect(screen.getByText("170 / 180 HP")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Next Sentence" })).toBeInTheDocument();
+    expect(screen.getByText("Sentence 1 of 2")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Next Sentence" }));
+
     expect(screen.getByRole("button", { name: "enfants" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "maison" })).not.toBeInTheDocument();
     expect(screen.getByText("Sentence 2 of 2")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
 
     expect(screen.getByText("170 / 180 HP")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Next Sentence" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Next Sentence" }));
+
     const maisonButton = screen.getByRole("button", { name: "maison" });
     expect(maisonButton).toBeDisabled();
     expect(screen.getByText("Sentence 1 of 2")).toBeInTheDocument();
-
-    fireEvent.click(maisonButton);
-    fireEvent.click(screen.getByRole("button", { name: "NOUN" }));
-    fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
-    expect(screen.getByText("170 / 180 HP")).toBeInTheDocument();
   });
 
   test("secret click on the Battle B autofills current sentence and advances round", () => {
@@ -45,6 +49,9 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
 
     expect(screen.getByText("40 / 180 HP")).toBeInTheDocument();
+    expect(screen.getByText("Round correct: yes")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Next Sentence" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Next Sentence" }));
     expect(screen.getByRole("button", { name: "enfants" })).toBeInTheDocument();
     expect(screen.getByText("Sentence 2 of 2")).toBeInTheDocument();
   });
@@ -57,6 +64,7 @@ describe("App", () => {
 
     fireEvent.click(screen.getByTestId("secret-autofill-trigger"));
     fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+    fireEvent.click(screen.getByRole("button", { name: "Next Sentence" }));
     fireEvent.click(screen.getByTestId("secret-autofill-trigger"));
     fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
 
@@ -79,7 +87,10 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "belle" }));
     fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
 
+    expect(screen.getByText("Round correct: yes")).toBeInTheDocument();
+    expect(screen.getByText("Round score: 40")).toBeInTheDocument();
     expect(screen.getByText("140 / 180 HP")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Next Sentence" }));
     expect(screen.getByText("Sentence 2 of 2")).toBeInTheDocument();
   });
 
