@@ -20,7 +20,7 @@ Source of truth: `AGENTS.md` takes precedence over this document
 | 1 | Content Contracts | `I1-*` | Iteration 0 | Done |
 | 2 | Core Validation | `I2-*` | Iteration 1 | Done |
 | 3 | Basic UI Shell | `I3-*` | Iteration 2 | Done |
-| 4 | Score and Combo | `I4-*` | Iteration 3 | In Progress |
+| 4 | Score and Combo | `I4-*` | Iteration 3 | Done |
 | 5 | Boss HP Integration | `I5-*` | Iteration 4 | Todo |
 | 6 | Additional Modes | `I6-*` | Iteration 5 | Todo |
 | 7 | Animation and Part Destruction | `I7-*` | Iteration 5 | Todo |
@@ -147,15 +147,15 @@ Issue `I4-2`: Combo module
 
 Issue `I4-3`: Engine integration
 
-- [ ] Integrate score and combo outputs into round result.
-- [ ] Expose score/combo state through engine state transition.
-- [ ] Add integration tests for score + combo interactions.
+- [x] Integrate score and combo outputs into round result.
+- [x] Expose score/combo state through engine state transition.
+- [x] Add integration tests for score + combo interactions.
 
 Iteration 4 exit checklist
 
-- [ ] Score results are reproducible.
-- [ ] Combo rules behave as specified.
-- [ ] No scoring logic leaks into `/boss`.
+- [x] Score results are reproducible.
+- [x] Combo rules behave as specified.
+- [x] No scoring logic leaks into `/boss`.
 
 ### Iteration 5: Boss HP Integration (`I5-*`)
 

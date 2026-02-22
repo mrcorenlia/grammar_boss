@@ -32,7 +32,7 @@ function App() {
     <main className="app">
       {/* These nodes render like normal HTML elements in the browser. */}
       <h1>Grammar Boss Battle</h1>
-      <p>Iteration 3 basic mode shell and POS interaction flow are in progress.</p>
+      <p>Iteration 4 score and combo integration is complete.</p>
 
       <section className="mode-switch" aria-label="Mode switch">
         <button

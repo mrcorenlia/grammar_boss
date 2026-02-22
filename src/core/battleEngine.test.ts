@@ -10,7 +10,7 @@ describe("battleEngine", () => {
       throw new Error("Sentence fixture must include at least one sentence.")
     }
 
-    const engine = createBattleEngine()
+    const engine = createBattleEngine({}, { basePointsPerCorrect: 1 })
     const result = engine.validateRound({
       mode: "tagging",
       sentence,
@@ -22,7 +22,18 @@ describe("battleEngine", () => {
     })
 
     expect(result.correct).toBe(true)
-    expect(result.score).toBe(sentence.tokens.length)
+    expect(result.score).toBe(sentence.tokens.length * 2)
+    expect(result.comboState).toEqual({
+      comboCount: 1,
+      multiplier: 2,
+      maxMultiplier: 3
+    })
+    expect(result.scoreState).toEqual({
+      totalScore: sentence.tokens.length * 2,
+      roundScore: sentence.tokens.length * 2,
+      comboBonus: sentence.tokens.length,
+      speedBonus: 0
+    })
   })
 
   test("returns an error result when a mode has no registered validator", () => {
@@ -32,7 +43,7 @@ describe("battleEngine", () => {
       throw new Error("Sentence fixture must include at least one sentence.")
     }
 
-    const engine = createBattleEngine()
+    const engine = createBattleEngine({}, { basePointsPerCorrect: 1 })
     const result = engine.validateRound({
       mode: "structure",
       sentence,
@@ -51,6 +62,17 @@ describe("battleEngine", () => {
         params: { mode: "structure" }
       }
     ])
+    expect(result.comboState).toEqual({
+      comboCount: 0,
+      multiplier: 1,
+      maxMultiplier: 3
+    })
+    expect(result.scoreState).toEqual({
+      totalScore: 0,
+      roundScore: 0,
+      comboBonus: 0,
+      speedBonus: 0
+    })
   })
 
   test("uses validator registry dispatch for tagging payloads", () => {
@@ -70,9 +92,14 @@ describe("battleEngine", () => {
       }
     }
 
-    const engine = createBattleEngine({
-      tagging: taggingSpy
-    })
+    const engine = createBattleEngine(
+      {
+        tagging: taggingSpy
+      },
+      {
+        basePointsPerCorrect: 1
+      }
+    )
 
     const payload = { tokenIdToPOS: { t1: "DET" } }
     const result = engine.validateRound({
@@ -84,7 +111,18 @@ describe("battleEngine", () => {
     expect(calls).toEqual([payload])
     expect(result).toMatchObject({
       correct: true,
-      score: 99
+      score: 198,
+      comboState: {
+        comboCount: 1,
+        multiplier: 2,
+        maxMultiplier: 3
+      },
+      scoreState: {
+        totalScore: 198,
+        roundScore: 198,
+        comboBonus: 99,
+        speedBonus: 0
+      }
     })
   })
 })

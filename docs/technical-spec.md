@@ -87,6 +87,16 @@ export type TagModeUserInput = {
 4. Convert score to boss damage.
 5. Emit event payloads for animation and UI feedback.
 6. Commit state transitions.
+7. Return round results that include updated `comboState` and `scoreState` snapshots.
+
+Example round output contract:
+
+```ts
+export type RoundResult = ValidationResult & {
+  comboState: ComboState;
+  scoreState: ScoreState;
+};
+```
 
 ### 4.3 Boss Damage Contract
 

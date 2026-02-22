@@ -1,0 +1,173 @@
+import { createBattleEngine } from "./battleEngine"
+import { loadSentencesFromContent } from "./contentRepository"
+import type { ModeValidator } from "./validation"
+
+describe("battleEngine score+combo integration", () => {
+  test("applies combo progression across correct rounds and caps at 3x", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const deterministicValidator: ModeValidator<{ correctInteractionCount: number }> = (
+      userInput
+    ) => ({
+      correct: true,
+      score: userInput.correctInteractionCount,
+      mistakes: []
+    })
+
+    const engine = createBattleEngine(
+      {
+        tagging: deterministicValidator
+      },
+      {
+        basePointsPerCorrect: 10
+      }
+    )
+
+    const first = engine.validateRound({
+      mode: "tagging",
+      sentence,
+      userInput: { correctInteractionCount: 2 }
+    })
+    const second = engine.validateRound({
+      mode: "tagging",
+      sentence,
+      userInput: { correctInteractionCount: 2 }
+    })
+    const third = engine.validateRound({
+      mode: "tagging",
+      sentence,
+      userInput: { correctInteractionCount: 2 }
+    })
+
+    expect(first.score).toBe(40)
+    expect(second.score).toBe(60)
+    expect(third.score).toBe(60)
+    expect(first.comboState.multiplier).toBe(2)
+    expect(second.comboState.multiplier).toBe(3)
+    expect(third.comboState.multiplier).toBe(3)
+    expect(third.scoreState).toEqual({
+      totalScore: 160,
+      roundScore: 60,
+      comboBonus: 40,
+      speedBonus: 0
+    })
+    expect(engine.getState()).toEqual({
+      comboState: third.comboState,
+      scoreState: third.scoreState
+    })
+  })
+
+  test("resets combo after incorrect round and keeps score progression deterministic", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const branchingValidator: ModeValidator<{ correct: boolean; interactions: number }> = (
+      userInput
+    ) => ({
+      correct: userInput.correct,
+      score: userInput.interactions,
+      mistakes: userInput.correct ? [] : ["not fully correct"]
+    })
+
+    const engine = createBattleEngine(
+      {
+        tagging: branchingValidator
+      },
+      {
+        basePointsPerCorrect: 10
+      }
+    )
+
+    const first = engine.validateRound({
+      mode: "tagging",
+      sentence,
+      userInput: { correct: true, interactions: 2 }
+    })
+    const second = engine.validateRound({
+      mode: "tagging",
+      sentence,
+      userInput: { correct: false, interactions: 2 }
+    })
+    const third = engine.validateRound({
+      mode: "tagging",
+      sentence,
+      userInput: { correct: true, interactions: 2 }
+    })
+
+    expect(first.scoreState.totalScore).toBe(40)
+    expect(second.comboState).toEqual({
+      comboCount: 0,
+      multiplier: 1,
+      maxMultiplier: 3
+    })
+    expect(second.scoreState).toEqual({
+      totalScore: 60,
+      roundScore: 20,
+      comboBonus: 0,
+      speedBonus: 0
+    })
+    expect(third.scoreState).toEqual({
+      totalScore: 100,
+      roundScore: 40,
+      comboBonus: 20,
+      speedBonus: 0
+    })
+  })
+
+  test("threads optional speed bonus hook into round score state", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const validator: ModeValidator<{ interactions: number }> = (userInput) => ({
+      correct: false,
+      score: userInput.interactions,
+      mistakes: ["incomplete"]
+    })
+
+    const engine = createBattleEngine(
+      {
+        tagging: validator
+      },
+      {
+        basePointsPerCorrect: 10,
+        speedBonusHook: ({ elapsedMs }) => (elapsedMs !== null && elapsedMs < 1000 ? 5 : 0)
+      }
+    )
+
+    const fastRound = engine.validateRound({
+      mode: "tagging",
+      sentence,
+      userInput: { interactions: 1 },
+      elapsedMs: 900
+    })
+    const slowRound = engine.validateRound({
+      mode: "tagging",
+      sentence,
+      userInput: { interactions: 1 },
+      elapsedMs: 3000
+    })
+
+    expect(fastRound.scoreState).toEqual({
+      totalScore: 15,
+      roundScore: 15,
+      comboBonus: 0,
+      speedBonus: 5
+    })
+    expect(slowRound.scoreState).toEqual({
+      totalScore: 25,
+      roundScore: 10,
+      comboBonus: 0,
+      speedBonus: 0
+    })
+  })
+})

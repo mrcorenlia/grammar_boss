@@ -17,7 +17,7 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
 
     expect(screen.getByText("Round correct: no")).toBeInTheDocument();
-    expect(screen.getByText("Round score: 1")).toBeInTheDocument();
+    expect(screen.getByText("Round score: 10")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Mistakes" })).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Mistakes list" })).toBeInTheDocument();
   });
