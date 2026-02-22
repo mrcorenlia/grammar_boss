@@ -13,7 +13,7 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "Structure" })).toBeInTheDocument();
   });
 
-  test("advances sentences per submit and blocks repeat damage farming on one prompt", () => {
+  test("advances sentences and locks solved interactions when a sentence repeats", () => {
     render(<App />);
 
     fireEvent.click(screen.getByRole("button", { name: "maison" }));
@@ -28,8 +28,14 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
 
     expect(screen.getByText("170 / 180 HP")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "maison" })).toBeInTheDocument();
+    const maisonButton = screen.getByRole("button", { name: "maison" });
+    expect(maisonButton).toBeDisabled();
     expect(screen.getByText("Sentence 1 of 2")).toBeInTheDocument();
+
+    fireEvent.click(maisonButton);
+    fireEvent.click(screen.getByRole("button", { name: "NOUN" }));
+    fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+    expect(screen.getByText("170 / 180 HP")).toBeInTheDocument();
   });
 
   test("secret click on the Battle B autofills current sentence and advances round", () => {

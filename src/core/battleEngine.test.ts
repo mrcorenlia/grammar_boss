@@ -108,7 +108,12 @@ describe("battleEngine", () => {
       userInput: payload
     })
 
-    expect(calls).toEqual([payload])
+    expect(calls).toEqual([
+      expect.objectContaining({
+        ...payload,
+        eligibleTokenIds: sentence.tokens.map((token) => token.id)
+      })
+    ])
     expect(result).toMatchObject({
       correct: true,
       score: 198,

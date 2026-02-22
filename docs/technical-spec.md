@@ -57,6 +57,7 @@ export type ValidationResult = {
   score: number;
   mistakes: string[];
   feedback?: ValidationFeedbackMessage[];
+  interactionOutcomes?: ValidationInteractionOutcome[];
   breakdown?: Record<string, unknown>;
 };
 
@@ -65,6 +66,16 @@ export type ValidationFeedbackMessage = {
   level: "error" | "info";
   params?: Record<string, string | number | boolean | null>;
   tokenId?: string;
+};
+
+export type ValidationInteractionOutcome = {
+  mode: GameMode;
+  sentenceId: string;
+  interactionId: string;
+  dimension: string;
+  expected: string;
+  received: string | null;
+  correct: boolean;
 };
 
 export type ModeValidator<UserInput = unknown> = (
@@ -89,6 +100,8 @@ export type TagModeUserInput = {
 6. Commit state transitions.
 7. Return round results that include updated `comboState`, `scoreState`, and `bossState` snapshots.
 8. Emit boss damage events (`boss.part_destroyed`, `boss.defeated`) for animation subscribers.
+9. Derive round answer constraints (`locked`, `preAnswered`, `eligible`) before validation.
+10. Track cross-round answer outcomes and in-memory player stats.
 
 Example round output contract:
 
@@ -98,6 +111,34 @@ export type RoundResult = ValidationResult & {
   scoreState: ScoreState;
   bossState: BossState | null;
   bossEvents: BossDamageEvent[];
+  constraints: RoundAnswerConstraints;
+  playerStats: PlayerStats;
+};
+```
+
+Round constraints API:
+
+```ts
+getRoundConstraints(payload: {
+  mode: GameMode;
+  sentence: Sentence;
+}): RoundAnswerConstraints;
+```
+
+Tracking state snapshot:
+
+```ts
+type AnswerTrackingState = {
+  solvedKeys: Record<string, true>; // `${mode}:${sentenceId}:${interactionId}`
+  roundIndex: number;
+  playerStats: PlayerStats;
+};
+
+type PlayerStats = {
+  totals: StatsBucket;
+  byMode: Partial<Record<GameMode, StatsBucket>>;
+  byDimension: Record<string, StatsBucket>;
+  confusionByDimension: Record<string, Record<string, Record<string, number>>>;
 };
 ```
 

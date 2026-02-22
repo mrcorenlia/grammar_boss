@@ -45,6 +45,10 @@ export const formatValidationFeedbackMessage = (
     return `No validator registered for mode "${mode}".`
   }
 
+  if (feedback.code === "engine.no_eligible_interactions") {
+    return "No eligible interactions remain for this sentence in the current mode."
+  }
+
   const explicitMessage = readStringParam(feedback.params, "message")
   if (explicitMessage) {
     return explicitMessage

@@ -1,10 +1,15 @@
 import type {
+  AnswerTrackingState,
   BossState,
   BossTemplate,
   ComboState,
   GameMode,
+  PlayerStats,
+  RoundAnswerConstraints,
   ScoreState,
   Sentence,
+  ValidationFeedbackMessage,
+  ValidationInteractionOutcome,
   ValidationResult
 } from "./types"
 import type { TagModeUserInput } from "./validateTagMode"
@@ -17,6 +22,13 @@ import {
   type RoundScoreInput,
   type SpeedBonusHook
 } from "./score"
+import {
+  createInitialAnswerTrackingState,
+  deriveRoundConstraints,
+  updateAnswerTrackingState,
+  type PreAnsweredRule,
+  type PreAnsweredRuleContext
+} from "./answerTracking"
 import { createBossStateFromTemplate } from "../boss/BossModel"
 import { applyDamageToBossState, type BossDamageEvent } from "../boss/DamageSystem"
 
@@ -38,6 +50,8 @@ export type RoundResult = ValidationResult & {
   scoreState: ScoreState
   bossState: BossState | null
   bossEvents: BossDamageEvent[]
+  constraints: RoundAnswerConstraints
+  playerStats: PlayerStats
 }
 
 const defaultValidators: ValidatorRegistry = {
@@ -50,16 +64,24 @@ export type BattleEngineScoringOptions = {
   comboMaxMultiplier?: number
   bossTemplate?: BossTemplate
   damageFromRoundScore?: (roundScore: number) => number
+  preAnsweredRule?: PreAnsweredRule
 }
 
 export type BattleEngine = {
   validateRound: (payload: RoundPayload) => RoundResult
+  getRoundConstraints: (payload: {
+    mode: GameMode
+    sentence: Sentence
+  }) => RoundAnswerConstraints
   getState: () => {
     comboState: ComboState
     scoreState: ScoreState
     bossState: BossState | null
+    answerTrackingState: AnswerTrackingState
   }
 }
+
+export type { PreAnsweredRuleContext }
 
 const createInitialScoreState = (): ScoreState => ({
   totalScore: 0,
@@ -79,6 +101,67 @@ const cloneScoreState = (value: ScoreState): ScoreState => ({
   roundScore: value.roundScore,
   comboBonus: value.comboBonus,
   speedBonus: value.speedBonus
+})
+
+const clonePlayerStats = (value: PlayerStats): PlayerStats => ({
+  totals: {
+    attempts: value.totals.attempts,
+    correct: value.totals.correct,
+    incorrect: value.totals.incorrect
+  },
+  byMode: Object.fromEntries(
+    Object.entries(value.byMode).flatMap(([mode, bucket]) =>
+      bucket
+        ? [
+            [
+              mode,
+              {
+                attempts: bucket.attempts,
+                correct: bucket.correct,
+                incorrect: bucket.incorrect
+              }
+            ]
+          ]
+        : []
+    )
+  ),
+  byDimension: Object.fromEntries(
+    Object.entries(value.byDimension).map(([dimension, bucket]) => [
+      dimension,
+      {
+        attempts: bucket.attempts,
+        correct: bucket.correct,
+        incorrect: bucket.incorrect
+      }
+    ])
+  ),
+  confusionByDimension: Object.fromEntries(
+    Object.entries(value.confusionByDimension).map(([dimension, expectedMap]) => [
+      dimension,
+      Object.fromEntries(
+        Object.entries(expectedMap).map(([expected, receivedMap]) => [
+          expected,
+          { ...receivedMap }
+        ])
+      )
+    ])
+  )
+})
+
+const cloneRoundAnswerConstraints = (
+  value: RoundAnswerConstraints
+): RoundAnswerConstraints => ({
+  lockedInteractionIds: [...value.lockedInteractionIds],
+  preAnsweredInteractionIds: [...value.preAnsweredInteractionIds],
+  eligibleInteractionIds: [...value.eligibleInteractionIds]
+})
+
+const cloneAnswerTrackingState = (
+  value: AnswerTrackingState
+): AnswerTrackingState => ({
+  solvedKeys: { ...value.solvedKeys },
+  roundIndex: value.roundIndex,
+  playerStats: clonePlayerStats(value.playerStats)
 })
 
 const cloneBossState = (value: BossState | null): BossState | null => {
@@ -116,6 +199,86 @@ const normalizeRoundDamage = (
   return Math.max(0, Math.trunc(rawDamage))
 }
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value)
+
+const injectEligibleTokenIds = (
+  userInput: unknown,
+  eligibleTokenIds: string[]
+): unknown => {
+  if (!isRecord(userInput)) {
+    return userInput
+  }
+
+  return {
+    ...userInput,
+    eligibleTokenIds: [...eligibleTokenIds]
+  }
+}
+
+const cloneFeedback = (
+  feedback: ValidationFeedbackMessage[] | undefined
+): ValidationFeedbackMessage[] =>
+  feedback
+    ? feedback.map((message) => {
+        const clonedMessage: ValidationFeedbackMessage = {
+          code: message.code,
+          level: message.level
+        }
+        if (message.tokenId !== undefined) {
+          clonedMessage.tokenId = message.tokenId
+        }
+        if (message.params !== undefined) {
+          clonedMessage.params = { ...message.params }
+        }
+
+        return clonedMessage
+      })
+    : []
+
+const withNoEligibleInteractionsFeedback = (
+  feedback: ValidationFeedbackMessage[],
+  payload: RoundPayload
+): ValidationFeedbackMessage[] => [
+  ...feedback,
+  {
+    code: "engine.no_eligible_interactions",
+    level: "info",
+    params: {
+      mode: payload.mode,
+      sentenceId: payload.sentence.id
+    }
+  }
+]
+
+const filterEligibleOutcomes = (
+  outcomes: ValidationInteractionOutcome[] | undefined,
+  payload: RoundPayload,
+  constraints: RoundAnswerConstraints
+): ValidationInteractionOutcome[] => {
+  if (!outcomes || outcomes.length === 0) {
+    return []
+  }
+
+  const eligibleSet = new Set(constraints.eligibleInteractionIds)
+  return outcomes
+    .filter(
+      (outcome) =>
+        outcome.mode === payload.mode &&
+        outcome.sentenceId === payload.sentence.id &&
+        eligibleSet.has(outcome.interactionId)
+    )
+    .map((outcome) => ({
+      mode: outcome.mode,
+      sentenceId: outcome.sentenceId,
+      interactionId: outcome.interactionId,
+      dimension: outcome.dimension,
+      expected: outcome.expected,
+      received: outcome.received,
+      correct: outcome.correct
+    }))
+}
+
 // Engine entrypoint for UI mode payloads.
 // UI should submit interactions to this API instead of invoking validators directly.
 export const createBattleEngine = (
@@ -131,8 +294,16 @@ export const createBattleEngine = (
   let bossState = scoringOptions.bossTemplate
     ? createBossStateFromTemplate(scoringOptions.bossTemplate)
     : null
+  let answerTrackingState = createInitialAnswerTrackingState()
 
   const validateRound = (payload: RoundPayload): RoundResult => {
+    const constraints = deriveRoundConstraints(
+      answerTrackingState,
+      payload.mode,
+      payload.sentence,
+      scoringOptions.preAnsweredRule
+    )
+    const supportsRoundConstraints = payload.mode === "tagging"
     const validator = validators[payload.mode]
     let baseValidationResult: ValidationResult
 
@@ -154,14 +325,32 @@ export const createBattleEngine = (
         feedback
       }
     } else {
+      const userInput =
+        payload.mode === "tagging"
+          ? injectEligibleTokenIds(payload.userInput, constraints.eligibleInteractionIds)
+          : payload.userInput
       baseValidationResult = executeValidator(
         validator as ModeValidator<any>,
-        payload.userInput,
+        userInput,
         payload.sentence
       )
     }
 
-    const correctInteractionCount = baseValidationResult.score
+    const eligibleOutcomes = supportsRoundConstraints
+      ? filterEligibleOutcomes(baseValidationResult.interactionOutcomes, payload, constraints)
+      : []
+    const eligibleCorrectCount = eligibleOutcomes.filter((outcome) => outcome.correct).length
+    const correctInteractionCount = supportsRoundConstraints
+      ? eligibleOutcomes.length > 0
+        ? eligibleCorrectCount
+        : Math.max(0, Math.trunc(baseValidationResult.score))
+      : Math.max(0, Math.trunc(baseValidationResult.score))
+    const neutralRound =
+      supportsRoundConstraints && constraints.eligibleInteractionIds.length === 0
+    const roundFeedback = neutralRound
+      ? withNoEligibleInteractionsFeedback(cloneFeedback(baseValidationResult.feedback), payload)
+      : cloneFeedback(baseValidationResult.feedback)
+    const roundMistakes = [...baseValidationResult.mistakes]
 
     // Validators emit a mode-level correctness score. The engine converts that
     // into score + combo state transitions for the global game loop.
@@ -182,12 +371,22 @@ export const createBattleEngine = (
       0,
       Math.trunc(roundScoreInput.correctInteractionCount)
     )
-    const roundScore = calculateRoundScore(roundScoreInput)
-    const nextComboState = updateComboState(comboState, baseValidationResult.correct)
-    const comboBonus = roundScore.totalScore * (nextComboState.multiplier - 1)
+    const roundScore = neutralRound
+      ? {
+          baseScore: 0,
+          speedBonus: 0,
+          totalScore: 0
+        }
+      : calculateRoundScore(roundScoreInput)
+    const nextComboState = neutralRound
+      ? cloneComboState(comboState)
+      : updateComboState(comboState, baseValidationResult.correct)
+    const comboBonus = neutralRound
+      ? 0
+      : roundScore.totalScore * (nextComboState.multiplier - 1)
     const totalRoundScore = roundScore.totalScore + comboBonus
     const nextScoreState: ScoreState = {
-      totalScore: scoreState.totalScore + totalRoundScore,
+      totalScore: neutralRound ? scoreState.totalScore : scoreState.totalScore + totalRoundScore,
       roundScore: totalRoundScore,
       comboBonus,
       speedBonus: roundScore.speedBonus
@@ -195,10 +394,14 @@ export const createBattleEngine = (
 
     comboState = nextComboState
     scoreState = nextScoreState
+    answerTrackingState = updateAnswerTrackingState(
+      answerTrackingState,
+      supportsRoundConstraints ? eligibleOutcomes : []
+    )
 
     let bossEvents: BossDamageEvent[] = []
     let bossDamageApplied = 0
-    if (bossState) {
+    if (bossState && !neutralRound) {
       bossDamageApplied = normalizeRoundDamage(
         totalRoundScore,
         scoringOptions.damageFromRoundScore
@@ -208,11 +411,15 @@ export const createBattleEngine = (
       bossEvents = bossDamageResult.events
     }
 
-    return {
+    const roundResult: RoundResult = {
       ...baseValidationResult,
+      mistakes: roundMistakes,
       score: totalRoundScore,
       breakdown: {
         ...(baseValidationResult.breakdown ?? {}),
+        constraints: supportsRoundConstraints
+          ? cloneRoundAnswerConstraints(constraints)
+          : undefined,
         scoring: {
           correctInteractionCount: normalizedCorrectInteractionCount,
           baseScore: roundScore.baseScore,
@@ -235,18 +442,57 @@ export const createBattleEngine = (
       comboState: cloneComboState(nextComboState),
       scoreState: cloneScoreState(nextScoreState),
       bossState: cloneBossState(bossState),
-      bossEvents
+      bossEvents,
+      constraints: cloneRoundAnswerConstraints(constraints),
+      playerStats: clonePlayerStats(answerTrackingState.playerStats)
     }
+
+    if (baseValidationResult.feedback !== undefined || roundFeedback.length > 0) {
+      roundResult.feedback = roundFeedback
+    }
+
+    if (supportsRoundConstraints) {
+      roundResult.interactionOutcomes = eligibleOutcomes
+    } else if (baseValidationResult.interactionOutcomes !== undefined) {
+      roundResult.interactionOutcomes = baseValidationResult.interactionOutcomes.map(
+        (outcome) => ({
+          mode: outcome.mode,
+          sentenceId: outcome.sentenceId,
+          interactionId: outcome.interactionId,
+          dimension: outcome.dimension,
+          expected: outcome.expected,
+          received: outcome.received,
+          correct: outcome.correct
+        })
+      )
+    }
+
+    return roundResult
   }
+
+  const getRoundConstraints = (payload: {
+    mode: GameMode
+    sentence: Sentence
+  }): RoundAnswerConstraints =>
+    cloneRoundAnswerConstraints(
+      deriveRoundConstraints(
+        answerTrackingState,
+        payload.mode,
+        payload.sentence,
+        scoringOptions.preAnsweredRule
+      )
+    )
 
   const getState = () => ({
     comboState: cloneComboState(comboState),
     scoreState: cloneScoreState(scoreState),
-    bossState: cloneBossState(bossState)
+    bossState: cloneBossState(bossState),
+    answerTrackingState: cloneAnswerTrackingState(answerTrackingState)
   })
 
   return {
     validateRound,
+    getRoundConstraints,
     getState
   }
 }

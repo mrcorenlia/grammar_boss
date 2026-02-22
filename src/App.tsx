@@ -39,6 +39,20 @@ function App() {
     lastResult && currentSentence && lastResult.sentenceId === currentSentence.id
       ? lastResult.result
       : null;
+  const roundConstraints = useMemo(
+    () =>
+      currentSentence
+        ? battleEngine.getRoundConstraints({
+            mode: currentMode,
+            sentence: currentSentence
+          })
+        : {
+            lockedInteractionIds: [],
+            preAnsweredInteractionIds: [],
+            eligibleInteractionIds: []
+          },
+    [battleEngine, currentMode, currentSentence]
+  );
 
   if (!currentSentence) {
     return (
@@ -114,6 +128,8 @@ function App() {
           lastResult={visibleResult}
           secretAutofillVersion={secretAutofillVersion}
           submitDisabled={isBossDefeated}
+          lockedTokenIds={roundConstraints.lockedInteractionIds}
+          preAnsweredTokenIds={roundConstraints.preAnsweredInteractionIds}
           onSubmit={(payload) => {
             if (isBossDefeated) {
               return;

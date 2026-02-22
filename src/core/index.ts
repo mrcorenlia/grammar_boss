@@ -2,22 +2,28 @@
 // Consumers can import from "src/core" instead of deep file paths.
 // `export type` ensures these imports disappear at runtime and are type-only.
 export type {
+  AnswerTrackingState,
   BattleState,
   BossTemplate,
   BossTemplatePart,
   BossPartState,
   BossState,
+  InteractionKey,
   ComboState,
   GameMode,
   GNGroup,
   PartOfSpeech,
+  PlayerStats,
   PhraseGroup,
+  RoundAnswerConstraints,
   ScoreState,
   Sentence,
   SentenceStructure,
+  StatsBucket,
   Token,
   ValidationFeedbackMessage,
   ValidationBreakdown,
+  ValidationInteractionOutcome,
   ValidationResult
 } from "./types";
 
@@ -30,6 +36,10 @@ export { calculateComboMultiplier, createInitialComboState, updateComboState } f
 // Score module exports used by engine integration in Iteration 4.
 export type { RoundScoreInput, RoundScoreResult, SpeedBonusHook, SpeedBonusHookContext } from "./score"
 export { calculateBaseScore, calculateRoundScore } from "./score"
+
+// Answer tracking contracts used for cross-round locking and player stats.
+export { buildInteractionKey, createInitialAnswerTrackingState, deriveRoundConstraints, listTaggingInteractions, updateAnswerTrackingState } from "./answerTracking"
+export type { PreAnsweredRule } from "./answerTracking"
 
 // Content validation exports used by tests and future fixture checks.
 export type { ContentValidationError, ContentValidationResult } from "./contentValidation"
@@ -46,6 +56,7 @@ export { assertValidationResult, executeValidator, isValidationResult } from "./
 export type {
   BattleEngine,
   BattleEngineScoringOptions,
+  PreAnsweredRuleContext,
   RoundPayload,
   RoundResult,
   TaggingRoundPayload

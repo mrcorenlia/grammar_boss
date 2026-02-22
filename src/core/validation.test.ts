@@ -25,6 +25,17 @@ describe("validation contracts", () => {
           }
         }
       ],
+      interactionOutcomes: [
+        {
+          mode: "tagging",
+          sentenceId: "s1",
+          interactionId: "t1",
+          dimension: "partOfSpeech",
+          expected: "DET",
+          received: null,
+          correct: false
+        }
+      ],
       breakdown: { round: 1 }
     }
 

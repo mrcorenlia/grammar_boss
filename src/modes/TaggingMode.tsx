@@ -10,6 +10,8 @@ type TaggingModeProps = {
   lastResult: ValidationResult | null;
   secretAutofillVersion: number;
   submitDisabled?: boolean;
+  lockedTokenIds?: string[];
+  preAnsweredTokenIds?: string[];
 };
 
 const posOptions = [
@@ -32,17 +34,24 @@ function TaggingMode({
   onSubmit,
   lastResult,
   secretAutofillVersion,
-  submitDisabled = false
+  submitDisabled = false,
+  lockedTokenIds = [],
+  preAnsweredTokenIds = []
 }: TaggingModeProps) {
   const [activeTokenId, setActiveTokenId] = useState<string | null>(null);
   const [tokenIdToPOS, setTokenIdToPOS] = useState<Record<string, string>>({});
+  const disabledTokenIds = useMemo(
+    () => new Set([...lockedTokenIds, ...preAnsweredTokenIds]),
+    [lockedTokenIds, preAnsweredTokenIds]
+  );
 
   const selectedTokenIds = useMemo(
     () =>
       new Set(
-        activeTokenId ? Object.keys(tokenIdToPOS).concat(activeTokenId) : Object.keys(tokenIdToPOS)
+        (activeTokenId ? Object.keys(tokenIdToPOS).concat(activeTokenId) : Object.keys(tokenIdToPOS))
+          .filter((tokenId) => !disabledTokenIds.has(tokenId))
       ),
-    [activeTokenId, tokenIdToPOS]
+    [activeTokenId, disabledTokenIds, tokenIdToPOS]
   );
 
   const activeToken = useMemo(
@@ -51,6 +60,10 @@ function TaggingMode({
   );
 
   const handleTokenToggle = (tokenId: string) => {
+    if (disabledTokenIds.has(tokenId)) {
+      return;
+    }
+
     setActiveTokenId((current) => (current === tokenId ? null : tokenId));
   };
 
@@ -66,7 +79,10 @@ function TaggingMode({
   };
 
   const handleSubmit = () => {
-    onSubmit({ tokenIdToPOS: { ...tokenIdToPOS } });
+    const filteredTokenIdToPOS = Object.fromEntries(
+      Object.entries(tokenIdToPOS).filter(([tokenId]) => !disabledTokenIds.has(tokenId))
+    );
+    onSubmit({ tokenIdToPOS: filteredTokenIdToPOS });
   };
 
   useEffect(() => {
@@ -76,7 +92,11 @@ function TaggingMode({
 
     // Easter egg helper: prefill tags from sentence content answers.
     setTokenIdToPOS(
-      Object.fromEntries(sentence.tokens.map((token) => [token.id, token.partOfSpeech]))
+      Object.fromEntries(
+        sentence.tokens
+          .filter((token) => !disabledTokenIds.has(token.id))
+          .map((token) => [token.id, token.partOfSpeech])
+      )
     );
     setActiveTokenId(null);
   }, [secretAutofillVersion, sentence]);
@@ -93,6 +113,7 @@ function TaggingMode({
       <SentenceRenderer
         sentence={sentence}
         selectedTokenIds={selectedTokenIds}
+        disabledTokenIds={disabledTokenIds}
         onTokenToggle={handleTokenToggle}
       />
 

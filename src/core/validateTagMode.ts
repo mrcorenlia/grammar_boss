@@ -1,11 +1,16 @@
 import type { ModeValidator } from "./validation"
-import type { PartOfSpeech, ValidationFeedbackMessage } from "./types"
+import type {
+  PartOfSpeech,
+  ValidationFeedbackMessage,
+  ValidationInteractionOutcome
+} from "./types"
 import { formatValidationFeedbackMessage } from "./feedback"
 
 // Input contract for POS tagging mode.
 // Keys are token ids and values are the player's selected POS labels.
 export type TagModeUserInput = {
   tokenIdToPOS: Record<string, string>
+  eligibleTokenIds?: string[]
 }
 
 type TagTokenCheck = {
@@ -25,14 +30,21 @@ const normalizePOS = (value: string): string => value.trim().toUpperCase()
 // - missing, incorrect, and unexpected token tags are reported in mistakes
 export const validateTagMode: ModeValidator<TagModeUserInput> = (userInput, sentence) => {
   const tokenIdToPOS = userInput.tokenIdToPOS
-  const tokenIds = new Set(sentence.tokens.map((token) => token.id))
+  const sentenceTokenIds = new Set(sentence.tokens.map((token) => token.id))
+  const eligibleTokenIdSet = userInput.eligibleTokenIds
+    ? new Set(userInput.eligibleTokenIds.filter((tokenId) => sentenceTokenIds.has(tokenId)))
+    : sentenceTokenIds
+  const tokensToEvaluate = sentence.tokens.filter((token) =>
+    eligibleTokenIdSet.has(token.id)
+  )
   const tokenChecks: TagTokenCheck[] = []
+  const interactionOutcomes: ValidationInteractionOutcome[] = []
   const feedback: ValidationFeedbackMessage[] = []
   let correctTokenCount = 0
   let missingTokenCount = 0
   let incorrectTokenCount = 0
 
-  for (const token of sentence.tokens) {
+  for (const token of tokensToEvaluate) {
     const rawReceived = tokenIdToPOS[token.id]
     if (typeof rawReceived !== "string" || rawReceived.trim().length === 0) {
       missingTokenCount += 1
@@ -52,6 +64,15 @@ export const validateTagMode: ModeValidator<TagModeUserInput> = (userInput, sent
           tokenText: token.text,
           expectedPOS: token.partOfSpeech
         }
+      })
+      interactionOutcomes.push({
+        mode: "tagging" as const,
+        sentenceId: sentence.id,
+        interactionId: token.id,
+        dimension: "partOfSpeech",
+        expected: token.partOfSpeech,
+        received: null,
+        correct: false
       })
       continue
     }
@@ -82,10 +103,19 @@ export const validateTagMode: ModeValidator<TagModeUserInput> = (userInput, sent
       receivedPOS,
       correct: isCorrect
     })
+    interactionOutcomes.push({
+      mode: "tagging" as const,
+      sentenceId: sentence.id,
+      interactionId: token.id,
+      dimension: "partOfSpeech",
+      expected: token.partOfSpeech,
+      received: receivedPOS,
+      correct: isCorrect
+    })
   }
 
   const unexpectedTokenIds = Object.keys(tokenIdToPOS)
-    .filter((tokenId) => !tokenIds.has(tokenId))
+    .filter((tokenId) => !sentenceTokenIds.has(tokenId))
     .sort()
 
   for (const tokenId of unexpectedTokenIds) {
@@ -99,10 +129,11 @@ export const validateTagMode: ModeValidator<TagModeUserInput> = (userInput, sent
     })
   }
 
-  const totalTokens = sentence.tokens.length
-  const taggedTokenCount = Object.values(tokenIdToPOS).filter(
-    (value) => typeof value === "string" && value.trim().length > 0
-  ).length
+  const totalTokens = tokensToEvaluate.length
+  const taggedTokenCount = tokensToEvaluate.filter((token) => {
+    const value = tokenIdToPOS[token.id]
+    return typeof value === "string" && value.trim().length > 0
+  }).length
   const score = correctTokenCount
   const mistakes = feedback.map((message) => formatValidationFeedbackMessage(message))
 
@@ -111,8 +142,11 @@ export const validateTagMode: ModeValidator<TagModeUserInput> = (userInput, sent
     score,
     mistakes,
     feedback,
+    interactionOutcomes,
     breakdown: {
       mode: "tagging",
+      sentenceTokenCount: sentence.tokens.length,
+      eligibleTokenCount: totalTokens,
       totalTokens,
       taggedTokenCount,
       correctTokenCount,

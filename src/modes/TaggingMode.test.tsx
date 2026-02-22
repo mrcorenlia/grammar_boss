@@ -218,4 +218,35 @@ describe("TaggingMode", () => {
     fireEvent.click(submitButton);
     expect(submittedPayloads).toEqual([]);
   });
+
+  test("shows locked/pre-answered tokens as disabled and excludes them from payload", () => {
+    const sentence = loadSentencesFromContent()[0];
+    expect(sentence).toBeDefined();
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.");
+    }
+
+    const submittedPayloads: Array<{ tokenIdToPOS: Record<string, string> }> = [];
+    render(
+      <TaggingMode
+        sentence={sentence}
+        onSubmit={(payload) => submittedPayloads.push(payload)}
+        lastResult={null}
+        secretAutofillVersion={0}
+        lockedTokenIds={["t1"]}
+        preAnsweredTokenIds={["t2"]}
+      />
+    );
+
+    const lockedToken = screen.getByRole("button", { name: "La" });
+    const preAnsweredToken = screen.getByRole("button", { name: "petite" });
+    expect(lockedToken).toBeDisabled();
+    expect(preAnsweredToken).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "maison" }));
+    fireEvent.click(screen.getByRole("button", { name: "NOUN" }));
+    fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+
+    expect(submittedPayloads).toEqual([{ tokenIdToPOS: { t3: "NOUN" } }]);
+  });
 });

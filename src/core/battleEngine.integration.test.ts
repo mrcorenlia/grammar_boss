@@ -55,10 +55,25 @@ describe("battleEngine score+combo integration", () => {
       comboBonus: 40,
       speedBonus: 0
     })
-    expect(engine.getState()).toEqual({
+    const engineState = engine.getState()
+    expect(engineState).toEqual({
       comboState: third.comboState,
       scoreState: third.scoreState,
-      bossState: null
+      bossState: null,
+      answerTrackingState: {
+        solvedKeys: {},
+        roundIndex: 3,
+        playerStats: {
+          totals: {
+            attempts: 0,
+            correct: 0,
+            incorrect: 0
+          },
+          byMode: {},
+          byDimension: {},
+          confusionByDimension: {}
+        }
+      }
     })
   })
 
@@ -170,6 +185,178 @@ describe("battleEngine score+combo integration", () => {
       comboBonus: 0,
       speedBonus: 0
     })
+  })
+
+  test("locks previously solved tagging interactions when a sentence repeats", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const engine = createBattleEngine(
+      {},
+      {
+        basePointsPerCorrect: 10,
+        comboMaxMultiplier: 1
+      }
+    )
+
+    const firstRound = engine.validateRound({
+      mode: "tagging",
+      sentence,
+      userInput: {
+        tokenIdToPOS: {
+          t1: "DET"
+        }
+      }
+    })
+    const secondRound = engine.validateRound({
+      mode: "tagging",
+      sentence,
+      userInput: {
+        tokenIdToPOS: {
+          t1: "DET"
+        }
+      }
+    })
+
+    expect(firstRound.constraints.lockedInteractionIds).toEqual([])
+    expect(firstRound.score).toBe(10)
+    expect(secondRound.constraints.lockedInteractionIds).toEqual(["t1"])
+    expect(secondRound.constraints.eligibleInteractionIds).not.toContain("t1")
+    expect(secondRound.score).toBe(0)
+  })
+
+  test("applies pre-answered rule to exclude interactions from score and stats", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const engine = createBattleEngine(
+      {},
+      {
+        basePointsPerCorrect: 10,
+        comboMaxMultiplier: 1,
+        preAnsweredRule: ({ expected }) => expected === "DET"
+      }
+    )
+
+    const result = engine.validateRound({
+      mode: "tagging",
+      sentence,
+      userInput: {
+        tokenIdToPOS: Object.fromEntries(
+          sentence.tokens.map((token) => [token.id, token.partOfSpeech])
+        )
+      }
+    })
+
+    expect(result.constraints.preAnsweredInteractionIds).toEqual(["t1"])
+    expect(result.score).toBe((sentence.tokens.length - 1) * 10)
+    expect(result.playerStats.totals).toEqual({
+      attempts: sentence.tokens.length - 1,
+      correct: sentence.tokens.length - 1,
+      incorrect: 0
+    })
+  })
+
+  test("returns neutral round with zero eligible interactions", () => {
+    const sentence = loadSentencesFromContent()[0]
+    const bossTemplate = loadBossesFromContent()[0]
+    expect(sentence).toBeDefined()
+    expect(bossTemplate).toBeDefined()
+    if (!sentence || !bossTemplate) {
+      throw new Error("Sentence and boss fixtures must both exist.")
+    }
+
+    const engine = createBattleEngine(
+      {},
+      {
+        basePointsPerCorrect: 10,
+        bossTemplate,
+        preAnsweredRule: () => true
+      }
+    )
+
+    const result = engine.validateRound({
+      mode: "tagging",
+      sentence,
+      userInput: {
+        tokenIdToPOS: Object.fromEntries(
+          sentence.tokens.map((token) => [token.id, token.partOfSpeech])
+        )
+      }
+    })
+
+    expect(result.constraints.eligibleInteractionIds).toEqual([])
+    expect(result.score).toBe(0)
+    expect(result.scoreState.totalScore).toBe(0)
+    expect(result.comboState).toEqual({
+      comboCount: 0,
+      multiplier: 1,
+      maxMultiplier: 3
+    })
+    expect(result.bossState?.currentHP).toBe(180)
+    expect(result.feedback).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "engine.no_eligible_interactions",
+          level: "info"
+        })
+      ])
+    )
+  })
+
+  test("tracks confusion stats for incorrect eligible outcomes", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const engine = createBattleEngine(
+      {},
+      {
+        basePointsPerCorrect: 10,
+        comboMaxMultiplier: 1,
+        preAnsweredRule: ({ interactionId }) =>
+          interactionId !== "t2" && interactionId !== "t3"
+      }
+    )
+
+    const result = engine.validateRound({
+      mode: "tagging",
+      sentence,
+      userInput: {
+        tokenIdToPOS: {
+          t2: "ADV",
+          t3: "NOUN"
+        }
+      }
+    })
+
+    expect(result.constraints.eligibleInteractionIds).toEqual(["t2", "t3"])
+    expect(result.playerStats.totals).toEqual({
+      attempts: 2,
+      correct: 1,
+      incorrect: 1
+    })
+    expect(result.playerStats.byMode.tagging).toEqual({
+      attempts: 2,
+      correct: 1,
+      incorrect: 1
+    })
+    expect(result.playerStats.byDimension.partOfSpeech).toEqual({
+      attempts: 2,
+      correct: 1,
+      incorrect: 1
+    })
+    expect(
+      result.playerStats.confusionByDimension.partOfSpeech?.ADJ?.ADV
+    ).toBe(1)
   })
 
   test("updates boss HP from engine state and emits part-destroyed events", () => {

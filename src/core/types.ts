@@ -13,6 +13,10 @@ export type ValidationFeedbackMessage = {
   tokenId?: string;
 };
 
+// Stable interaction identity built from mode + sentence + interaction id.
+// Format: `${mode}:${sentenceId}:${interactionId}`
+export type InteractionKey = string;
+
 // Standard output format for any validation function in the engine.
 // Keeping one shared result shape makes modes interchangeable.
 export type ValidationResult = {
@@ -24,6 +28,8 @@ export type ValidationResult = {
   mistakes: string[];
   // Structured feedback for UX-controlled display and localization.
   feedback?: ValidationFeedbackMessage[];
+  // Per-interaction outcomes emitted by validators for engine tracking and stats.
+  interactionOutcomes?: ValidationInteractionOutcome[];
   // Optional deeper data for analytics/debug/advanced feedback.
   breakdown?: ValidationBreakdown;
 };
@@ -119,6 +125,48 @@ export type BossTemplate = {
 
 // Supported player interaction modes in the MVP.
 export type GameMode = "tagging" | "structure" | "gn-link" | "agreement";
+
+// Normalized result for one answerable interaction in a mode validator.
+// Tagging uses token ids for interactionId and "partOfSpeech" as dimension.
+export type ValidationInteractionOutcome = {
+  mode: GameMode;
+  sentenceId: string;
+  interactionId: string;
+  dimension: string;
+  expected: string;
+  received: string | null;
+  correct: boolean;
+};
+
+// Engine-computed interaction eligibility for a mode+sentence round.
+export type RoundAnswerConstraints = {
+  lockedInteractionIds: string[];
+  preAnsweredInteractionIds: string[];
+  eligibleInteractionIds: string[];
+};
+
+// Common aggregate bucket for attempt correctness totals.
+export type StatsBucket = {
+  attempts: number;
+  correct: number;
+  incorrect: number;
+};
+
+// Battle-session performance stats for analytics and later graphing.
+export type PlayerStats = {
+  totals: StatsBucket;
+  byMode: Partial<Record<GameMode, StatsBucket>>;
+  byDimension: Record<string, StatsBucket>;
+  // dimension -> expected -> received -> count
+  confusionByDimension: Record<string, Record<string, Record<string, number>>>;
+};
+
+// Engine-owned answer tracking that persists for the full battle.
+export type AnswerTrackingState = {
+  solvedKeys: Record<InteractionKey, true>;
+  roundIndex: number;
+  playerStats: PlayerStats;
+};
 
 // Independent HP state for a single boss body part.
 export type BossPartState = {

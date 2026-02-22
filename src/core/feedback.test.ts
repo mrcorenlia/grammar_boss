@@ -52,4 +52,19 @@ describe("feedback helpers", () => {
 
     expect(getValidationMistakeMessages(result)).toEqual(["Legacy fallback message"])
   })
+
+  test("formats no-eligible-interactions info feedback", () => {
+    const message = formatValidationFeedbackMessage({
+      code: "engine.no_eligible_interactions",
+      level: "info",
+      params: {
+        mode: "tagging",
+        sentenceId: "s1"
+      }
+    })
+
+    expect(message).toBe(
+      "No eligible interactions remain for this sentence in the current mode."
+    )
+  })
 })

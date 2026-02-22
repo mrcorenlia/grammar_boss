@@ -22,6 +22,7 @@ describe("validateTagMode", () => {
     expect(result.score).toBe(sentence.tokens.length)
     expect(result.mistakes).toEqual([])
     expect(result.feedback).toEqual([])
+    expect(result.interactionOutcomes).toHaveLength(sentence.tokens.length)
     expect(result.breakdown).toMatchObject({
       mode: "tagging",
       totalTokens: sentence.tokens.length,
@@ -81,6 +82,47 @@ describe("validateTagMode", () => {
       correctTokenCount: 2,
       incorrectTokenCount: 1,
       unexpectedTokenCount: 1
+    })
+  })
+
+  test("evaluates only eligibleTokenIds and ignores excluded sentence tokens", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const userInput: TagModeUserInput = {
+      tokenIdToPOS: {
+        t1: "NOUN", // excluded from eligibility in this test
+        t3: "NOUN"
+      },
+      eligibleTokenIds: ["t3"]
+    }
+
+    const result = validateTagMode(userInput, sentence)
+
+    expect(result.correct).toBe(true)
+    expect(result.score).toBe(1)
+    expect(result.mistakes).toEqual([])
+    expect(result.feedback).toEqual([])
+    expect(result.interactionOutcomes).toEqual([
+      {
+        mode: "tagging",
+        sentenceId: sentence.id,
+        interactionId: "t3",
+        dimension: "partOfSpeech",
+        expected: "NOUN",
+        received: "NOUN",
+        correct: true
+      }
+    ])
+    expect(result.breakdown).toMatchObject({
+      sentenceTokenCount: sentence.tokens.length,
+      eligibleTokenCount: 1,
+      totalTokens: 1,
+      correctTokenCount: 1,
+      missingTokenCount: 0
     })
   })
 

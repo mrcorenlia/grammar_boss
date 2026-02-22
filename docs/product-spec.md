@@ -85,6 +85,8 @@ Must:
 
 1. Remain pure logic with no UI coupling.
 2. Return structured `ValidationResult`.
+3. Track per-interaction outcomes for battle-level analytics.
+4. Lock previously solved interactions when the same sentence appears again in the same battle.
 
 ```ts
 type ValidationResult = {
@@ -120,6 +122,7 @@ Damage priority:
 1. Base score per correct interaction.
 2. Combo multiplier.
 3. Optional speed bonus.
+4. Only currently eligible interactions count toward score and damage.
 
 ### 5.5 Combo System
 

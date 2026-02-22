@@ -73,4 +73,29 @@ describe("SentenceRenderer", () => {
     expect(unselectedToken).toHaveAttribute("data-token-id", "t1");
     expect(unselectedToken).toHaveAttribute("aria-pressed", "false");
   });
+
+  test("renders disabled tokens as visible but non-interactive", () => {
+    const sentence = loadSentencesFromContent()[0];
+    expect(sentence).toBeDefined();
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.");
+    }
+
+    const clickedIds: string[] = [];
+    render(
+      <SentenceRenderer
+        sentence={sentence}
+        selectedTokenIds={new Set<string>()}
+        disabledTokenIds={new Set(["t1"])}
+        onTokenToggle={(tokenId) => clickedIds.push(tokenId)}
+      />
+    );
+
+    const disabledToken = screen.getByRole("button", { name: "La" });
+    expect(disabledToken).toBeDisabled();
+    expect(disabledToken).toHaveClass("token-chip--disabled");
+
+    fireEvent.click(disabledToken);
+    expect(clickedIds).toEqual([]);
+  });
 });

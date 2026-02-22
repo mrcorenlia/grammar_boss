@@ -185,6 +185,12 @@ Iteration 5 exit checklist
 
 ### Iteration 6: Additional Learning Modes (`I6-*`)
 
+Issue `I6-0`: Answer tracking foundation
+
+- [ ] Add mode-aware answer tracking state in `/core`.
+- [ ] Add round constraints API (`locked`, `preAnswered`, `eligible`) in `battleEngine`.
+- [ ] Add in-memory player stats and confusion tracking contracts.
+
 Issue `I6-1`: Structure mode
 
 - [ ] Implement structure validator in `/core`.
@@ -205,6 +211,9 @@ Issue `I6-3`: Agreement mode
 
 Iteration 6 exit checklist
 
+- [ ] Solved interactions lock when repeated in the same battle.
+- [ ] Pre-answered rule path works for selective interaction eligibility.
+- [ ] Player stats contracts are emitted for future graphing.
 - [ ] All new validators are pure and tested.
 - [ ] `/modes` contains no validation logic.
 - [ ] Engine remains mode-agnostic via validator dispatch.

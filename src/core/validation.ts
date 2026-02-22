@@ -1,6 +1,7 @@
 import type {
   GameMode,
   Sentence,
+  ValidationInteractionOutcome,
   ValidationFeedbackMessage,
   ValidationResult
 } from "./types"
@@ -65,6 +66,52 @@ const isValidationFeedbackMessage = (
   return true
 }
 
+const isValidationInteractionOutcome = (
+  value: unknown
+): value is ValidationInteractionOutcome => {
+  if (!isRecord(value)) {
+    return false
+  }
+
+  if (
+    value.mode !== "tagging" &&
+    value.mode !== "structure" &&
+    value.mode !== "gn-link" &&
+    value.mode !== "agreement"
+  ) {
+    return false
+  }
+
+  if (typeof value.sentenceId !== "string" || value.sentenceId.length === 0) {
+    return false
+  }
+
+  if (
+    typeof value.interactionId !== "string" ||
+    value.interactionId.length === 0
+  ) {
+    return false
+  }
+
+  if (typeof value.dimension !== "string" || value.dimension.length === 0) {
+    return false
+  }
+
+  if (typeof value.expected !== "string" || value.expected.length === 0) {
+    return false
+  }
+
+  if (value.received !== null && typeof value.received !== "string") {
+    return false
+  }
+
+  if (typeof value.correct !== "boolean") {
+    return false
+  }
+
+  return true
+}
+
 // Runtime guard for cross-module safety.
 // TypeScript enforces compile-time contracts, but this catches malformed
 // values from future dynamic integrations or unsafe casts.
@@ -89,6 +136,15 @@ export const isValidationResult = (value: unknown): value is ValidationResult =>
     if (
       !Array.isArray(value.feedback) ||
       !value.feedback.every((item) => isValidationFeedbackMessage(item))
+    ) {
+      return false
+    }
+  }
+
+  if (value.interactionOutcomes !== undefined) {
+    if (
+      !Array.isArray(value.interactionOutcomes) ||
+      !value.interactionOutcomes.every((item) => isValidationInteractionOutcome(item))
     ) {
       return false
     }
@@ -135,6 +191,18 @@ export const assertValidationResult = (value: unknown): ValidationResult => {
 
       return normalizedMessage
     })
+  }
+
+  if (value.interactionOutcomes !== undefined) {
+    normalized.interactionOutcomes = value.interactionOutcomes.map((outcome) => ({
+      mode: outcome.mode,
+      sentenceId: outcome.sentenceId,
+      interactionId: outcome.interactionId,
+      dimension: outcome.dimension,
+      expected: outcome.expected,
+      received: outcome.received,
+      correct: outcome.correct
+    }))
   }
 
   if (value.breakdown !== undefined) {
