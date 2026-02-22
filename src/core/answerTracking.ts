@@ -82,6 +82,10 @@ const listInteractionsForMode = (
     return listTaggingInteractions(sentence)
   }
 
+  if (mode === "structure") {
+    return listStructureInteractions(sentence)
+  }
+
   return []
 }
 
@@ -99,6 +103,60 @@ export const listTaggingInteractions = (sentence: Sentence): InteractionDescript
     dimension: "partOfSpeech",
     expected: token.partOfSpeech
   }))
+
+const normalizeTokenIdsToSentenceOrder = (
+  tokenIds: string[],
+  sentence: Sentence
+): string[] => {
+  const knownTokenIds = new Set(sentence.tokens.map((token) => token.id))
+  const selectedTokenIds = new Set(tokenIds.filter((tokenId) => knownTokenIds.has(tokenId)))
+
+  return sentence.tokens
+    .map((token) => token.id)
+    .filter((tokenId) => selectedTokenIds.has(tokenId))
+}
+
+const serializeTokenIds = (tokenIds: string[]): string => tokenIds.join("|")
+
+// Structure interactions are part-level checks, not per-token checks.
+// We expose one interaction descriptor per answerable structure part.
+export const listStructureInteractions = (sentence: Sentence): InteractionDescriptor[] => {
+  const subjectTokenIds = normalizeTokenIdsToSentenceOrder(
+    sentence.structure.subjectTokenIds,
+    sentence
+  )
+  const predicateTokenIds = normalizeTokenIdsToSentenceOrder(
+    sentence.structure.predicateTokenIds,
+    sentence
+  )
+  const complementTokenIds = normalizeTokenIdsToSentenceOrder(
+    sentence.structure.complementTokenIds ?? [],
+    sentence
+  )
+
+  const interactions: InteractionDescriptor[] = [
+    {
+      interactionId: "subject",
+      dimension: "sentenceStructurePart",
+      expected: serializeTokenIds(subjectTokenIds)
+    },
+    {
+      interactionId: "predicate",
+      dimension: "sentenceStructurePart",
+      expected: serializeTokenIds(predicateTokenIds)
+    }
+  ]
+
+  if (complementTokenIds.length > 0) {
+    interactions.push({
+      interactionId: "complement",
+      dimension: "sentenceStructurePart",
+      expected: serializeTokenIds(complementTokenIds)
+    })
+  }
+
+  return interactions
+}
 
 // Creates a fresh in-memory tracking state for a new battle.
 export const createInitialAnswerTrackingState = (): AnswerTrackingState => ({

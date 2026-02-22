@@ -14,6 +14,8 @@ import type {
 } from "./types"
 import type { TagModeUserInput } from "./validateTagMode"
 import { validateTagMode } from "./validateTagMode"
+import type { StructureModeUserInput } from "./validateStructureMode"
+import { validateStructureMode } from "./validateStructureMode"
 import { executeValidator, type ModeValidator, type ValidatorRegistry } from "./validation"
 import { formatValidationFeedbackMessage } from "./feedback"
 import { createInitialComboState, updateComboState } from "./combo"
@@ -45,6 +47,12 @@ export type RoundPayload = {
   elapsedMs?: number | null
 }
 
+export type StructureRoundPayload = {
+  mode: "structure"
+  userInput: StructureModeUserInput
+  sentence: Sentence
+}
+
 export type RoundResult = ValidationResult & {
   comboState: ComboState
   scoreState: ScoreState
@@ -55,8 +63,11 @@ export type RoundResult = ValidationResult & {
 }
 
 const defaultValidators: ValidatorRegistry = {
-  tagging: validateTagMode as ModeValidator<any>
+  tagging: validateTagMode as ModeValidator<any>,
+  structure: validateStructureMode as ModeValidator<any>
 }
+
+const constraintEnabledModes = new Set<GameMode>(["tagging", "structure"])
 
 export type BattleEngineScoringOptions = {
   basePointsPerCorrect?: number
@@ -216,6 +227,20 @@ const injectEligibleTokenIds = (
   }
 }
 
+const injectEligiblePartIds = (
+  userInput: unknown,
+  eligiblePartIds: string[]
+): unknown => {
+  if (!isRecord(userInput)) {
+    return userInput
+  }
+
+  return {
+    ...userInput,
+    eligiblePartIds: [...eligiblePartIds]
+  }
+}
+
 const cloneFeedback = (
   feedback: ValidationFeedbackMessage[] | undefined
 ): ValidationFeedbackMessage[] =>
@@ -303,7 +328,7 @@ export const createBattleEngine = (
       payload.sentence,
       scoringOptions.preAnsweredRule
     )
-    const supportsRoundConstraints = payload.mode === "tagging"
+    const supportsRoundConstraints = constraintEnabledModes.has(payload.mode)
     const validator = validators[payload.mode]
     let baseValidationResult: ValidationResult
 
@@ -325,10 +350,13 @@ export const createBattleEngine = (
         feedback
       }
     } else {
-      const userInput =
-        payload.mode === "tagging"
-          ? injectEligibleTokenIds(payload.userInput, constraints.eligibleInteractionIds)
-          : payload.userInput
+      let userInput = payload.userInput
+      if (payload.mode === "tagging") {
+        userInput = injectEligibleTokenIds(userInput, constraints.eligibleInteractionIds)
+      }
+      if (payload.mode === "structure") {
+        userInput = injectEligiblePartIds(userInput, constraints.eligibleInteractionIds)
+      }
       baseValidationResult = executeValidator(
         validator as ModeValidator<any>,
         userInput,

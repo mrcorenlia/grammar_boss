@@ -7,6 +7,7 @@ import {
   type ValidationResult
 } from "./core";
 import TaggingMode from "./modes/TaggingMode";
+import StructureMode from "./modes/StructureMode";
 import HPBar from "./ui/HPBar";
 import "./App.css";
 
@@ -29,6 +30,7 @@ function App() {
   const [currentMode, setCurrentMode] = useState<GameMode>("tagging");
   const [lastResult, setLastResult] = useState<{
     sentenceId: string;
+    mode: GameMode;
     result: ValidationResult;
   } | null>(null);
   const [bossState, setBossState] = useState(() => battleEngine.getState().bossState);
@@ -36,7 +38,10 @@ function App() {
   const isBossDefeated = bossState?.defeated ?? false;
 
   const visibleResult =
-    lastResult && currentSentence && lastResult.sentenceId === currentSentence.id
+    lastResult &&
+    currentSentence &&
+    lastResult.sentenceId === currentSentence.id &&
+    lastResult.mode === currentMode
       ? lastResult.result
       : null;
   const roundConstraints = useMemo(
@@ -143,6 +148,33 @@ function App() {
             });
             setLastResult({
               sentenceId: currentSentence.id,
+              mode: "tagging",
+              result
+            });
+            setBossState(result.bossState);
+            setSentenceIndex((currentIndex) => (currentIndex + 1) % sentences.length);
+          }}
+        />
+      ) : currentMode === "structure" ? (
+        <StructureMode
+          sentence={currentSentence}
+          lastResult={visibleResult}
+          submitDisabled={isBossDefeated}
+          lockedPartIds={roundConstraints.lockedInteractionIds}
+          preAnsweredPartIds={roundConstraints.preAnsweredInteractionIds}
+          onSubmit={(payload) => {
+            if (isBossDefeated) {
+              return;
+            }
+
+            const result = battleEngine.validateRound({
+              mode: "structure",
+              sentence: currentSentence,
+              userInput: payload
+            });
+            setLastResult({
+              sentenceId: currentSentence.id,
+              mode: "structure",
               result
             });
             setBossState(result.bossState);

@@ -359,6 +359,133 @@ describe("battleEngine score+combo integration", () => {
     ).toBe(1)
   })
 
+  test("scores structure mode by exact part matches and tracks structure stats", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const engine = createBattleEngine({}, { basePointsPerCorrect: 10 })
+    const result = engine.validateRound({
+      mode: "structure",
+      sentence,
+      userInput: {
+        subjectTokenIds: [...sentence.structure.subjectTokenIds],
+        predicateTokenIds: [...sentence.structure.predicateTokenIds]
+      }
+    })
+
+    expect(result.correct).toBe(true)
+    expect(result.constraints.eligibleInteractionIds).toEqual(["subject", "predicate"])
+    expect(result.score).toBe(40)
+    expect(result.playerStats.byMode.structure).toEqual({
+      attempts: 2,
+      correct: 2,
+      incorrect: 0
+    })
+    expect(result.playerStats.byDimension.sentenceStructurePart).toEqual({
+      attempts: 2,
+      correct: 2,
+      incorrect: 0
+    })
+  })
+
+  test("locks solved structure parts when the sentence repeats", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const engine = createBattleEngine(
+      {},
+      {
+        basePointsPerCorrect: 10,
+        comboMaxMultiplier: 1
+      }
+    )
+
+    const firstRound = engine.validateRound({
+      mode: "structure",
+      sentence,
+      userInput: {
+        subjectTokenIds: [...sentence.structure.subjectTokenIds],
+        predicateTokenIds: []
+      }
+    })
+    const secondRound = engine.validateRound({
+      mode: "structure",
+      sentence,
+      userInput: {
+        subjectTokenIds: [...sentence.structure.subjectTokenIds],
+        predicateTokenIds: []
+      }
+    })
+
+    expect(firstRound.constraints.lockedInteractionIds).toEqual([])
+    expect(firstRound.score).toBe(10)
+    expect(secondRound.constraints.lockedInteractionIds).toEqual(["subject"])
+    expect(secondRound.constraints.eligibleInteractionIds).toEqual(["predicate"])
+    expect(secondRound.score).toBe(0)
+  })
+
+  test("applies pre-answered rule and neutral-round policy for structure mode", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const predicateSkippedEngine = createBattleEngine(
+      {},
+      {
+        basePointsPerCorrect: 10,
+        preAnsweredRule: ({ mode, interactionId }) =>
+          mode === "structure" && interactionId === "predicate"
+      }
+    )
+    const predicateSkippedResult = predicateSkippedEngine.validateRound({
+      mode: "structure",
+      sentence,
+      userInput: {
+        subjectTokenIds: [...sentence.structure.subjectTokenIds],
+        predicateTokenIds: [...sentence.structure.predicateTokenIds]
+      }
+    })
+
+    expect(predicateSkippedResult.constraints.preAnsweredInteractionIds).toEqual(["predicate"])
+    expect(predicateSkippedResult.constraints.eligibleInteractionIds).toEqual(["subject"])
+    expect(predicateSkippedResult.score).toBe(20)
+
+    const noEligibleEngine = createBattleEngine(
+      {},
+      {
+        basePointsPerCorrect: 10,
+        preAnsweredRule: ({ mode }) => mode === "structure"
+      }
+    )
+    const noEligibleResult = noEligibleEngine.validateRound({
+      mode: "structure",
+      sentence,
+      userInput: {
+        subjectTokenIds: [...sentence.structure.subjectTokenIds],
+        predicateTokenIds: [...sentence.structure.predicateTokenIds]
+      }
+    })
+
+    expect(noEligibleResult.constraints.eligibleInteractionIds).toEqual([])
+    expect(noEligibleResult.score).toBe(0)
+    expect(noEligibleResult.feedback).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "engine.no_eligible_interactions",
+          level: "info"
+        })
+      ])
+    )
+  })
+
   test("updates boss HP from engine state and emits part-destroyed events", () => {
     const sentence = loadSentencesFromContent()[0]
     const bossTemplate = loadBossesFromContent()[0]

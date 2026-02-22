@@ -38,7 +38,7 @@ export type { RoundScoreInput, RoundScoreResult, SpeedBonusHook, SpeedBonusHookC
 export { calculateBaseScore, calculateRoundScore } from "./score"
 
 // Answer tracking contracts used for cross-round locking and player stats.
-export { buildInteractionKey, createInitialAnswerTrackingState, deriveRoundConstraints, listTaggingInteractions, updateAnswerTrackingState } from "./answerTracking"
+export { buildInteractionKey, createInitialAnswerTrackingState, deriveRoundConstraints, listStructureInteractions, listTaggingInteractions, updateAnswerTrackingState } from "./answerTracking"
 export type { PreAnsweredRule } from "./answerTracking"
 
 // Content validation exports used by tests and future fixture checks.
@@ -59,6 +59,7 @@ export type {
   PreAnsweredRuleContext,
   RoundPayload,
   RoundResult,
+  StructureRoundPayload,
   TaggingRoundPayload
 } from "./battleEngine"
 export { createBattleEngine } from "./battleEngine"
@@ -66,3 +67,7 @@ export { createBattleEngine } from "./battleEngine"
 // Tag mode validator exports.
 export type { TagModeUserInput } from "./validateTagMode"
 export { validateTagMode } from "./validateTagMode"
+
+// Structure mode validator exports.
+export type { StructureModeUserInput, StructurePartId } from "./validateStructureMode"
+export { validateStructureMode } from "./validateStructureMode"

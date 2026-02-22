@@ -22,7 +22,7 @@ Source of truth: `AGENTS.md` takes precedence over this document
 | 3 | Basic UI Shell | `I3-*` | Iteration 2 | Done |
 | 4 | Score and Combo | `I4-*` | Iteration 3 | Done |
 | 5 | Boss HP Integration | `I5-*` | Iteration 4 | Done |
-| 6 | Additional Modes | `I6-*` | Iteration 5 | Todo |
+| 6 | Additional Modes | `I6-*` | Iteration 5 | In Progress |
 | 7 | Animation and Part Destruction | `I7-*` | Iteration 5 | Todo |
 | 8 | Polish and Adaptive Difficulty | `I8-*` | Iteration 6, 7 | Todo |
 
@@ -187,15 +187,15 @@ Iteration 5 exit checklist
 
 Issue `I6-0`: Answer tracking foundation
 
-- [ ] Add mode-aware answer tracking state in `/core`.
-- [ ] Add round constraints API (`locked`, `preAnswered`, `eligible`) in `battleEngine`.
-- [ ] Add in-memory player stats and confusion tracking contracts.
+- [x] Add mode-aware answer tracking state in `/core`.
+- [x] Add round constraints API (`locked`, `preAnswered`, `eligible`) in `battleEngine`.
+- [x] Add in-memory player stats and confusion tracking contracts.
 
 Issue `I6-1`: Structure mode
 
-- [ ] Implement structure validator in `/core`.
-- [ ] Add Structure mode UI interactions.
-- [ ] Add `validateStructureMode` tests.
+- [x] Implement structure validator in `/core`.
+- [x] Add Structure mode UI interactions.
+- [x] Add `validateStructureMode` tests.
 
 Issue `I6-2`: GN linking mode
 
@@ -211,9 +211,9 @@ Issue `I6-3`: Agreement mode
 
 Iteration 6 exit checklist
 
-- [ ] Solved interactions lock when repeated in the same battle.
-- [ ] Pre-answered rule path works for selective interaction eligibility.
-- [ ] Player stats contracts are emitted for future graphing.
+- [x] Solved interactions lock when repeated in the same battle.
+- [x] Pre-answered rule path works for selective interaction eligibility.
+- [x] Player stats contracts are emitted for future graphing.
 - [ ] All new validators are pure and tested.
 - [ ] `/modes` contains no validation logic.
 - [ ] Engine remains mode-agnostic via validator dispatch.

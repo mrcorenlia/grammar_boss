@@ -67,4 +67,35 @@ describe("feedback helpers", () => {
       "No eligible interactions remain for this sentence in the current mode."
     )
   })
+
+  test("formats structure part selection feedback", () => {
+    const message = formatValidationFeedbackMessage({
+      code: "structure.incorrect_part_selection",
+      level: "error",
+      params: {
+        partId: "subject",
+        expectedTokenIds: "t1|t2",
+        receivedTokenIds: "t1"
+      }
+    })
+
+    expect(message).toBe(
+      "Incorrect subject selection: expected [t1|t2], received [t1]."
+    )
+  })
+
+  test("formats structure unknown token feedback", () => {
+    const message = formatValidationFeedbackMessage({
+      code: "structure.unknown_token",
+      level: "error",
+      params: {
+        partId: "predicate",
+        tokenId: "t999"
+      }
+    })
+
+    expect(message).toBe(
+      'Received structure token id "t999" for part "predicate" that does not exist in the sentence.'
+    )
+  })
 })

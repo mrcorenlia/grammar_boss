@@ -40,6 +40,21 @@ export const formatValidationFeedbackMessage = (
     return `Received POS tag for unknown token id "${tokenId}".`
   }
 
+  if (feedback.code === "structure.incorrect_part_selection") {
+    const partId = readStringParam(feedback.params, "partId") ?? "unknown"
+    const expectedTokenIds =
+      readStringParam(feedback.params, "expectedTokenIds") ?? "(none)"
+    const receivedTokenIds =
+      readStringParam(feedback.params, "receivedTokenIds") ?? "(none)"
+    return `Incorrect ${partId} selection: expected [${expectedTokenIds}], received [${receivedTokenIds}].`
+  }
+
+  if (feedback.code === "structure.unknown_token") {
+    const partId = readStringParam(feedback.params, "partId") ?? "unknown"
+    const tokenId = readStringParam(feedback.params, "tokenId") ?? "unknown"
+    return `Received structure token id "${tokenId}" for part "${partId}" that does not exist in the sentence.`
+  }
+
   if (feedback.code === "engine.unregistered_mode") {
     const mode = readStringParam(feedback.params, "mode") ?? "unknown"
     return `No validator registered for mode "${mode}".`

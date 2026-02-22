@@ -44,6 +44,11 @@ Player identifies:
 2. Predicate
 3. Complement (if present)
 
+Current MVP scoring for Structure mode is part-exact:
+- +1 for correct Subject set
+- +1 for correct Predicate set
+- +1 for correct Complement set when complement exists
+
 ### Mode C: GN Linking
 
 Player links:

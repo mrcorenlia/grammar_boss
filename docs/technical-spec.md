@@ -85,6 +85,14 @@ export type ModeValidator<UserInput = unknown> = (
 
 export type TagModeUserInput = {
   tokenIdToPOS: Record<string, string>;
+  eligibleTokenIds?: string[];
+};
+
+export type StructureModeUserInput = {
+  subjectTokenIds: string[];
+  predicateTokenIds: string[];
+  complementTokenIds?: string[];
+  eligiblePartIds?: Array<"subject" | "predicate" | "complement">;
 };
 ```
 
@@ -187,6 +195,7 @@ To prevent hardcoded answer coupling:
     score.ts
     validation.ts
     validateTagMode.ts
+    validateStructureMode.ts
     contentValidation.ts
     contentRepository.ts
     types.ts

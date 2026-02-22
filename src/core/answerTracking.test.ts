@@ -3,6 +3,7 @@ import {
   buildInteractionKey,
   createInitialAnswerTrackingState,
   deriveRoundConstraints,
+  listStructureInteractions,
   updateAnswerTrackingState
 } from "./answerTracking"
 import type { ValidationInteractionOutcome } from "./types"
@@ -128,5 +129,52 @@ describe("answerTracking", () => {
     expect(nextState.roundIndex).toBe(1)
     expect(nextState.playerStats).toEqual(initialState.playerStats)
     expect(nextState.solvedKeys).toEqual(initialState.solvedKeys)
+  })
+
+  test("lists structure interactions as part-level descriptors", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const interactions = listStructureInteractions(sentence)
+
+    expect(interactions).toEqual([
+      {
+        interactionId: "subject",
+        dimension: "sentenceStructurePart",
+        expected: "t1|t2|t3|t4"
+      },
+      {
+        interactionId: "predicate",
+        dimension: "sentenceStructurePart",
+        expected: "t5|t6"
+      }
+    ])
+  })
+
+  test("derives structure constraints and locks solved structure parts", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const solvedOutcome: ValidationInteractionOutcome = {
+      mode: "structure",
+      sentenceId: sentence.id,
+      interactionId: "subject",
+      dimension: "sentenceStructurePart",
+      expected: "t1|t2|t3|t4",
+      received: "t1|t2|t3|t4",
+      correct: true
+    }
+
+    const state = updateAnswerTrackingState(createInitialAnswerTrackingState(), [solvedOutcome])
+    const constraints = deriveRoundConstraints(state, "structure", sentence)
+
+    expect(constraints.lockedInteractionIds).toEqual(["subject"])
+    expect(constraints.eligibleInteractionIds).toEqual(["predicate"])
   })
 })

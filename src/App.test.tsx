@@ -64,11 +64,30 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "Validate Round" })).toBeDisabled();
   });
 
-  test("switches modes in the mode shell container", () => {
+  test("supports structure mode interaction flow through battleEngine", () => {
     render(<App />);
 
     fireEvent.click(screen.getByRole("button", { name: "Structure" }));
-    expect(screen.getByText("structure mode")).toBeInTheDocument();
+
+    expect(screen.getByRole("heading", { name: "Structure Mode" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "La" }));
+    fireEvent.click(screen.getByRole("button", { name: "petite" }));
+    fireEvent.click(screen.getByRole("button", { name: "maison" }));
+    fireEvent.click(screen.getByRole("button", { name: "rouge" }));
+    fireEvent.click(screen.getByRole("button", { name: "Predicate" }));
+    fireEvent.click(screen.getByRole("button", { name: "est" }));
+    fireEvent.click(screen.getByRole("button", { name: "belle" }));
+    fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+
+    expect(screen.getByText("140 / 180 HP")).toBeInTheDocument();
+    expect(screen.getByText("Sentence 2 of 2")).toBeInTheDocument();
+  });
+
+  test("keeps placeholder shell for unimplemented modes", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "GN Link" }));
+    expect(screen.getByText("gn-link mode")).toBeInTheDocument();
     expect(screen.getByText("This mode shell is not implemented yet.")).toBeInTheDocument();
   });
 });
