@@ -156,4 +156,66 @@ describe("TaggingMode", () => {
       }
     ]);
   });
+
+  test("resets mode-local tag selections when sentence id changes", () => {
+    const sentences = loadSentencesFromContent();
+    const firstSentence = sentences[0];
+    const secondSentence = sentences[1];
+    expect(firstSentence).toBeDefined();
+    expect(secondSentence).toBeDefined();
+    if (!firstSentence || !secondSentence) {
+      throw new Error("Sentence fixture must include at least two sentences.");
+    }
+
+    const submittedPayloads: Array<{ tokenIdToPOS: Record<string, string> }> = [];
+    const { rerender } = render(
+      <TaggingMode
+        sentence={firstSentence}
+        onSubmit={(payload) => submittedPayloads.push(payload)}
+        lastResult={null}
+        secretAutofillVersion={0}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "maison" }));
+    fireEvent.click(screen.getByRole("button", { name: "NOUN" }));
+    expect(screen.getByText("t3: NOUN")).toBeInTheDocument();
+
+    rerender(
+      <TaggingMode
+        sentence={secondSentence}
+        onSubmit={(payload) => submittedPayloads.push(payload)}
+        lastResult={null}
+        secretAutofillVersion={0}
+      />
+    );
+    expect(screen.getByText("t3: unassigned")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+    expect(submittedPayloads).toEqual([{ tokenIdToPOS: {} }]);
+  });
+
+  test("disables Validate Round when submitDisabled is true", () => {
+    const sentence = loadSentencesFromContent()[0];
+    expect(sentence).toBeDefined();
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.");
+    }
+
+    const submittedPayloads: Array<{ tokenIdToPOS: Record<string, string> }> = [];
+    render(
+      <TaggingMode
+        sentence={sentence}
+        onSubmit={(payload) => submittedPayloads.push(payload)}
+        lastResult={null}
+        secretAutofillVersion={0}
+        submitDisabled
+      />
+    );
+
+    const submitButton = screen.getByRole("button", { name: "Validate Round" });
+    expect(submitButton).toBeDisabled();
+    fireEvent.click(submitButton);
+    expect(submittedPayloads).toEqual([]);
+  });
 });

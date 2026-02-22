@@ -7,41 +7,55 @@ describe("App", () => {
     render(<App />);
     expect(screen.getByLabelText("Boss HP")).toBeInTheDocument();
     expect(screen.getByRole("progressbar", { name: "Boss HP progress" })).toBeInTheDocument();
+    expect(screen.getByText("Sentence 1 of 2")).toBeInTheDocument();
     expect(screen.getByLabelText("Mode switch")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Tagging" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Structure" })).toBeInTheDocument();
   });
 
-  test("supports POS interaction flow and shows battleEngine-driven result", () => {
+  test("advances sentences per submit and blocks repeat damage farming on one prompt", () => {
     render(<App />);
 
     fireEvent.click(screen.getByRole("button", { name: "maison" }));
     fireEvent.click(screen.getByRole("button", { name: "NOUN" }));
     fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
 
-    expect(screen.getByText("Round correct: no")).toBeInTheDocument();
-    expect(screen.getByText("Round score: 10")).toBeInTheDocument();
     expect(screen.getByText("170 / 180 HP")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Mistakes" })).toBeInTheDocument();
-    expect(screen.getByRole("list", { name: "Mistakes list" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "enfants" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "maison" })).not.toBeInTheDocument();
+    expect(screen.getByText("Sentence 2 of 2")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+
+    expect(screen.getByText("170 / 180 HP")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "maison" })).toBeInTheDocument();
+    expect(screen.getByText("Sentence 1 of 2")).toBeInTheDocument();
   });
 
-  test("secret click on the Battle B autofills correct answers for tagging mode", () => {
-    const sentence = loadSentencesFromContent()[0];
-    expect(sentence).toBeDefined();
-    if (!sentence) {
-      throw new Error("Sentence fixture must include at least one sentence.");
-    }
-
+  test("secret click on the Battle B autofills current sentence and advances round", () => {
     render(<App />);
 
     fireEvent.click(screen.getByTestId("secret-autofill-trigger"));
     fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
 
-    expect(screen.getByText("Round correct: yes")).toBeInTheDocument();
-    expect(
-      screen.getByText(`Round score: ${sentence.tokens.length * 20}`)
-    ).toBeInTheDocument();
+    expect(screen.getByText("40 / 180 HP")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "enfants" })).toBeInTheDocument();
+    expect(screen.getByText("Sentence 2 of 2")).toBeInTheDocument();
+  });
+
+  test("disables Validate Round when the boss is defeated", () => {
+    const sentences = loadSentencesFromContent();
+    expect(sentences.length).toBeGreaterThanOrEqual(2);
+
+    render(<App />);
+
+    fireEvent.click(screen.getByTestId("secret-autofill-trigger"));
+    fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+    fireEvent.click(screen.getByTestId("secret-autofill-trigger"));
+    fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+
+    expect(screen.getByText("0 / 180 HP")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Validate Round" })).toBeDisabled();
   });
 
   test("switches modes in the mode shell container", () => {

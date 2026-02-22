@@ -24,11 +24,21 @@ function App() {
       ),
     [initialBossTemplate]
   );
-  const currentSentence = sentences[0] ?? null;
+  const [sentenceIndex, setSentenceIndex] = useState(0);
+  const currentSentence = sentences[sentenceIndex] ?? null;
   const [currentMode, setCurrentMode] = useState<GameMode>("tagging");
-  const [lastResult, setLastResult] = useState<ValidationResult | null>(null);
+  const [lastResult, setLastResult] = useState<{
+    sentenceId: string;
+    result: ValidationResult;
+  } | null>(null);
   const [bossState, setBossState] = useState(() => battleEngine.getState().bossState);
   const [secretAutofillVersion, setSecretAutofillVersion] = useState(0);
+  const isBossDefeated = bossState?.defeated ?? false;
+
+  const visibleResult =
+    lastResult && currentSentence && lastResult.sentenceId === currentSentence.id
+      ? lastResult.result
+      : null;
 
   if (!currentSentence) {
     return (
@@ -61,6 +71,9 @@ function App() {
         attle
       </h1>
       <p>Iteration 5 boss HP integration is complete.</p>
+      <p>
+        Sentence {sentenceIndex + 1} of {sentences.length}
+      </p>
 
       <HPBar bossState={bossState} />
 
@@ -98,17 +111,26 @@ function App() {
       {currentMode === "tagging" ? (
         <TaggingMode
           sentence={currentSentence}
-          lastResult={lastResult}
+          lastResult={visibleResult}
           secretAutofillVersion={secretAutofillVersion}
+          submitDisabled={isBossDefeated}
           onSubmit={(payload) => {
+            if (isBossDefeated) {
+              return;
+            }
+
             // App routes player payloads to battleEngine only.
             const result = battleEngine.validateRound({
               mode: "tagging",
               sentence: currentSentence,
               userInput: payload
             });
-            setLastResult(result);
+            setLastResult({
+              sentenceId: currentSentence.id,
+              result
+            });
             setBossState(result.bossState);
+            setSentenceIndex((currentIndex) => (currentIndex + 1) % sentences.length);
           }}
         />
       ) : (

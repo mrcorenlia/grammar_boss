@@ -9,6 +9,7 @@ type TaggingModeProps = {
   onSubmit: (payload: TagModeUserInput) => void;
   lastResult: ValidationResult | null;
   secretAutofillVersion: number;
+  submitDisabled?: boolean;
 };
 
 const posOptions = [
@@ -30,7 +31,8 @@ function TaggingMode({
   sentence,
   onSubmit,
   lastResult,
-  secretAutofillVersion
+  secretAutofillVersion,
+  submitDisabled = false
 }: TaggingModeProps) {
   const [activeTokenId, setActiveTokenId] = useState<string | null>(null);
   const [tokenIdToPOS, setTokenIdToPOS] = useState<Record<string, string>>({});
@@ -79,6 +81,12 @@ function TaggingMode({
     setActiveTokenId(null);
   }, [secretAutofillVersion, sentence]);
 
+  useEffect(() => {
+    // New rounds must start with fresh mode-local selection state.
+    setTokenIdToPOS({});
+    setActiveTokenId(null);
+  }, [sentence.id]);
+
   return (
     <section className="mode-panel" aria-label="Tagging mode">
       <h2>Tagging Mode</h2>
@@ -105,7 +113,12 @@ function TaggingMode({
             </button>
           ))}
         </div>
-        <button type="button" className="submit-round" onClick={handleSubmit}>
+        <button
+          type="button"
+          className="submit-round"
+          onClick={handleSubmit}
+          disabled={submitDisabled}
+        >
           Validate Round
         </button>
       </div>
