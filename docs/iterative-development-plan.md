@@ -167,9 +167,9 @@ Issue `I5-1`: Boss data model
 
 Issue `I5-2`: Sequential damage system
 
-- [ ] Apply damage to active part first.
-- [ ] Carry overflow damage to next part.
-- [ ] Emit part-destroyed and boss-defeated events.
+- [x] Apply damage to active part first.
+- [x] Carry overflow damage to next part.
+- [x] Emit part-destroyed and boss-defeated events.
 
 Issue `I5-3`: Boss UI baseline
 
