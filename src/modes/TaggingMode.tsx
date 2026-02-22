@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import type { Sentence, ValidationResult } from "../core";
 import { type TagModeUserInput } from "../core";
 import SentenceRenderer from "../ui/SentenceRenderer";
+import ValidationFeedback from "../ui/ValidationFeedback";
 
 type TaggingModeProps = {
   sentence: Sentence;
@@ -102,12 +103,7 @@ function TaggingMode({ sentence, onSubmit, lastResult }: TaggingModeProps) {
         </ul>
       </div>
 
-      {lastResult ? (
-        <div className="validation-feedback">
-          <p>Round correct: {lastResult.correct ? "yes" : "no"}</p>
-          <p>Round score: {lastResult.score}</p>
-        </div>
-      ) : null}
+      <ValidationFeedback result={lastResult} />
     </section>
   );
 }

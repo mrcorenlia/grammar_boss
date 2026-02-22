@@ -119,4 +119,23 @@
 
 .validation-feedback {
   margin-top: 1rem;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.65rem;
+  text-align: left;
+  background: #f8fafc;
+}
+
+.validation-feedback h3 {
+  margin: 0.75rem 0 0.4rem;
+  font-size: 1rem;
+}
+
+.validation-feedback ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.validation-feedback li {
+  margin: 0.2rem 0;
 }

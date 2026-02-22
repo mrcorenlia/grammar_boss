@@ -18,6 +18,8 @@ describe("App", () => {
 
     expect(screen.getByText("Round correct: no")).toBeInTheDocument();
     expect(screen.getByText("Round score: 1")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Mistakes" })).toBeInTheDocument();
+    expect(screen.getByRole("list", { name: "Mistakes list" })).toBeInTheDocument();
   });
 
   test("switches modes in the mode shell container", () => {

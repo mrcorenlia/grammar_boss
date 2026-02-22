@@ -26,7 +26,7 @@ describe("TaggingMode", () => {
     expect(submittedPayloads).toEqual([{ tokenIdToPOS: { t3: "NOUN" } }]);
   });
 
-  test("shows round feedback supplied by engine result", () => {
+  test("shows correctness, score, and mistakes from engine feedback", () => {
     const sentence = loadSentencesFromContent()[0];
     expect(sentence).toBeDefined();
     if (!sentence) {
@@ -36,7 +36,7 @@ describe("TaggingMode", () => {
     const result: ValidationResult = {
       correct: false,
       score: 2,
-      mistakes: ["example"]
+      mistakes: ["Missing POS tag for token.", "Incorrect POS assignment for token."]
     };
 
     render(
@@ -45,5 +45,30 @@ describe("TaggingMode", () => {
 
     expect(screen.getByText("Round correct: no")).toBeInTheDocument();
     expect(screen.getByText("Round score: 2")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Mistakes" })).toBeInTheDocument();
+    expect(screen.getByRole("list", { name: "Mistakes list" })).toBeInTheDocument();
+    expect(screen.getByText("Missing POS tag for token.")).toBeInTheDocument();
+    expect(screen.getByText("Incorrect POS assignment for token.")).toBeInTheDocument();
+  });
+
+  test("shows empty mistakes state when the round is fully correct", () => {
+    const sentence = loadSentencesFromContent()[0];
+    expect(sentence).toBeDefined();
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.");
+    }
+
+    const result: ValidationResult = {
+      correct: true,
+      score: sentence.tokens.length,
+      mistakes: []
+    };
+
+    render(
+      <TaggingMode sentence={sentence} onSubmit={() => {}} lastResult={result} />
+    );
+
+    expect(screen.getByText("Round correct: yes")).toBeInTheDocument();
+    expect(screen.getByText("None")).toBeInTheDocument();
   });
 });

@@ -19,7 +19,7 @@ Source of truth: `AGENTS.md` takes precedence over this document
 | 0 | Foundation | `I0-*` | None | Done |
 | 1 | Content Contracts | `I1-*` | Iteration 0 | Done |
 | 2 | Core Validation | `I2-*` | Iteration 1 | Done |
-| 3 | Basic UI Shell | `I3-*` | Iteration 2 | In Progress |
+| 3 | Basic UI Shell | `I3-*` | Iteration 2 | Done |
 | 4 | Score and Combo | `I4-*` | Iteration 3 | Todo |
 | 5 | Boss HP Integration | `I5-*` | Iteration 4 | Todo |
 | 6 | Additional Modes | `I6-*` | Iteration 5 | Todo |
@@ -121,15 +121,15 @@ Issue `I3-2`: Mode shell and routing
 
 Issue `I3-3`: Validation feedback UI
 
-- [ ] Display correctness status.
-- [ ] Display mistakes list.
-- [ ] Keep validation logic out of `/modes`.
+- [x] Display correctness status.
+- [x] Display mistakes list.
+- [x] Keep validation logic out of `/modes`.
 
 Iteration 3 exit checklist
 
-- [ ] POS interaction works end-to-end through engine.
-- [ ] UI does not mutate global state directly.
-- [ ] Token-driven interaction rules are enforced.
+- [x] POS interaction works end-to-end through engine.
+- [x] UI does not mutate global state directly.
+- [x] Token-driven interaction rules are enforced.
 
 ### Iteration 4: Score and Combo (`I4-*`)
 
