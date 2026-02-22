@@ -41,7 +41,7 @@ Completed recently:
 
 In progress now:
 
-- Iteration 5 boss HP integration is next up from the roadmap.
+- Iteration 5 boss HP integration is in progress (boss data model completed).
 
 Planned next layers (see docs roadmap):
 

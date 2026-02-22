@@ -21,7 +21,7 @@ Source of truth: `AGENTS.md` takes precedence over this document
 | 2 | Core Validation | `I2-*` | Iteration 1 | Done |
 | 3 | Basic UI Shell | `I3-*` | Iteration 2 | Done |
 | 4 | Score and Combo | `I4-*` | Iteration 3 | Done |
-| 5 | Boss HP Integration | `I5-*` | Iteration 4 | Todo |
+| 5 | Boss HP Integration | `I5-*` | Iteration 4 | In Progress |
 | 6 | Additional Modes | `I6-*` | Iteration 5 | Todo |
 | 7 | Animation and Part Destruction | `I7-*` | Iteration 5 | Todo |
 | 8 | Polish and Adaptive Difficulty | `I8-*` | Iteration 6, 7 | Todo |
@@ -161,9 +161,9 @@ Iteration 4 exit checklist
 
 Issue `I5-1`: Boss data model
 
-- [ ] Implement total HP and part HP structures.
-- [ ] Map boss parts to stable SVG ids.
-- [ ] Ensure part independence in state representation.
+- [x] Implement total HP and part HP structures.
+- [x] Map boss parts to stable SVG ids.
+- [x] Ensure part independence in state representation.
 
 Issue `I5-2`: Sequential damage system
 
