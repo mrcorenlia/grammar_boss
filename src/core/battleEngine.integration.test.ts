@@ -486,6 +486,144 @@ describe("battleEngine score+combo integration", () => {
     )
   })
 
+  test("scores GN-link mode by exact dependent-to-noun matches and tracks stats", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const engine = createBattleEngine({}, { basePointsPerCorrect: 10 })
+    const result = engine.validateRound({
+      mode: "gn-link",
+      sentence,
+      userInput: {
+        dependentIdToNounId: {
+          t1: "t3",
+          t2: "t3",
+          t4: "t3"
+        }
+      }
+    })
+
+    expect(result.correct).toBe(true)
+    expect(result.constraints.eligibleInteractionIds).toEqual(["t1", "t2", "t4"])
+    expect(result.score).toBe(60)
+    expect(result.playerStats.byMode["gn-link"]).toEqual({
+      attempts: 3,
+      correct: 3,
+      incorrect: 0
+    })
+    expect(result.playerStats.byDimension.gnLinkTarget).toEqual({
+      attempts: 3,
+      correct: 3,
+      incorrect: 0
+    })
+  })
+
+  test("locks solved GN-link interactions when the sentence repeats", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const engine = createBattleEngine(
+      {},
+      {
+        basePointsPerCorrect: 10,
+        comboMaxMultiplier: 1
+      }
+    )
+
+    const firstRound = engine.validateRound({
+      mode: "gn-link",
+      sentence,
+      userInput: {
+        dependentIdToNounId: {
+          t1: "t3"
+        }
+      }
+    })
+    const secondRound = engine.validateRound({
+      mode: "gn-link",
+      sentence,
+      userInput: {
+        dependentIdToNounId: {
+          t1: "t3"
+        }
+      }
+    })
+
+    expect(firstRound.constraints.lockedInteractionIds).toEqual([])
+    expect(firstRound.score).toBe(10)
+    expect(secondRound.constraints.lockedInteractionIds).toEqual(["t1"])
+    expect(secondRound.constraints.eligibleInteractionIds).toEqual(["t2", "t4"])
+    expect(secondRound.score).toBe(0)
+  })
+
+  test("applies pre-answered rule and neutral-round policy for GN-link mode", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const adjectiveSkippedEngine = createBattleEngine(
+      {},
+      {
+        basePointsPerCorrect: 10,
+        preAnsweredRule: ({ mode, interactionId }) =>
+          mode === "gn-link" && interactionId === "t2"
+      }
+    )
+    const adjectiveSkippedResult = adjectiveSkippedEngine.validateRound({
+      mode: "gn-link",
+      sentence,
+      userInput: {
+        dependentIdToNounId: {
+          t1: "t3",
+          t2: "t3",
+          t4: "t3"
+        }
+      }
+    })
+
+    expect(adjectiveSkippedResult.constraints.preAnsweredInteractionIds).toEqual(["t2"])
+    expect(adjectiveSkippedResult.constraints.eligibleInteractionIds).toEqual(["t1", "t4"])
+    expect(adjectiveSkippedResult.score).toBe(40)
+
+    const noEligibleEngine = createBattleEngine(
+      {},
+      {
+        basePointsPerCorrect: 10,
+        preAnsweredRule: ({ mode }) => mode === "gn-link"
+      }
+    )
+    const noEligibleResult = noEligibleEngine.validateRound({
+      mode: "gn-link",
+      sentence,
+      userInput: {
+        dependentIdToNounId: {
+          t1: "t3",
+          t2: "t3",
+          t4: "t3"
+        }
+      }
+    })
+
+    expect(noEligibleResult.constraints.eligibleInteractionIds).toEqual([])
+    expect(noEligibleResult.score).toBe(0)
+    expect(noEligibleResult.feedback).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "engine.no_eligible_interactions",
+          level: "info"
+        })
+      ])
+    )
+  })
+
   test("updates boss HP from engine state and emits part-destroyed events", () => {
     const sentence = loadSentencesFromContent()[0]
     const bossTemplate = loadBossesFromContent()[0]

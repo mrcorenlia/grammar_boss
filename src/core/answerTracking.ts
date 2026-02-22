@@ -86,6 +86,10 @@ const listInteractionsForMode = (
     return listStructureInteractions(sentence)
   }
 
+  if (mode === "gn-link") {
+    return listGNLinkInteractions(sentence)
+  }
+
   return []
 }
 
@@ -156,6 +160,37 @@ export const listStructureInteractions = (sentence: Sentence): InteractionDescri
   }
 
   return interactions
+}
+
+// GN-link interactions are dependent-token -> noun links for each GN group.
+// One interaction is emitted per answerable dependent token.
+export const listGNLinkInteractions = (sentence: Sentence): InteractionDescriptor[] => {
+  const expectedByDependentId = new Map<string, string>()
+  for (const group of sentence.groups.gn) {
+    if (group.determinerId) {
+      expectedByDependentId.set(group.determinerId, group.nounId)
+    }
+
+    for (const adjectiveId of group.adjectiveIds ?? []) {
+      expectedByDependentId.set(adjectiveId, group.nounId)
+    }
+  }
+
+  return sentence.tokens
+    .flatMap((token) => {
+      const expectedNounId = expectedByDependentId.get(token.id)
+      if (!expectedNounId) {
+        return []
+      }
+
+      return [
+        {
+          interactionId: token.id,
+          dimension: "gnLinkTarget",
+          expected: expectedNounId
+        }
+      ]
+    })
 }
 
 // Creates a fresh in-memory tracking state for a new battle.

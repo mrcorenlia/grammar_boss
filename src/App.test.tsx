@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { loadSentencesFromContent } from "./core";
 import App from "./App";
 
@@ -94,11 +94,33 @@ describe("App", () => {
     expect(screen.getByText("Sentence 2 of 2")).toBeInTheDocument();
   });
 
-  test("keeps placeholder shell for unimplemented modes", () => {
+  test("supports GN link mode interaction flow through battleEngine", () => {
     render(<App />);
 
     fireEvent.click(screen.getByRole("button", { name: "GN Link" }));
-    expect(screen.getByText("gn-link mode")).toBeInTheDocument();
+
+    expect(screen.getByRole("heading", { name: "GN Link Mode" })).toBeInTheDocument();
+    const nounTargets = screen.getByRole("group", { name: "GN noun targets" });
+    fireEvent.click(screen.getByRole("button", { name: "La" }));
+    fireEvent.click(within(nounTargets).getByRole("button", { name: "maison" }));
+    fireEvent.click(screen.getByRole("button", { name: "petite" }));
+    fireEvent.click(within(nounTargets).getByRole("button", { name: "maison" }));
+    fireEvent.click(screen.getByRole("button", { name: "rouge" }));
+    fireEvent.click(within(nounTargets).getByRole("button", { name: "maison" }));
+    fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+
+    expect(screen.getByText("Round correct: yes")).toBeInTheDocument();
+    expect(screen.getByText("Round score: 60")).toBeInTheDocument();
+    expect(screen.getByText("120 / 180 HP")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Next Sentence" }));
+    expect(screen.getByText("Sentence 2 of 2")).toBeInTheDocument();
+  });
+
+  test("keeps placeholder shell for unimplemented agreement mode", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Agreement" }));
+    expect(screen.getByText("agreement mode")).toBeInTheDocument();
     expect(screen.getByText("This mode shell is not implemented yet.")).toBeInTheDocument();
   });
 });

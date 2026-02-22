@@ -3,6 +3,7 @@ import {
   buildInteractionKey,
   createInitialAnswerTrackingState,
   deriveRoundConstraints,
+  listGNLinkInteractions,
   listStructureInteractions,
   updateAnswerTrackingState
 } from "./answerTracking"
@@ -176,5 +177,57 @@ describe("answerTracking", () => {
 
     expect(constraints.lockedInteractionIds).toEqual(["subject"])
     expect(constraints.eligibleInteractionIds).toEqual(["predicate"])
+  })
+
+  test("lists GN-link interactions as dependent-token descriptors", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const interactions = listGNLinkInteractions(sentence)
+
+    expect(interactions).toEqual([
+      {
+        interactionId: "t1",
+        dimension: "gnLinkTarget",
+        expected: "t3"
+      },
+      {
+        interactionId: "t2",
+        dimension: "gnLinkTarget",
+        expected: "t3"
+      },
+      {
+        interactionId: "t4",
+        dimension: "gnLinkTarget",
+        expected: "t3"
+      }
+    ])
+  })
+
+  test("derives GN-link constraints and locks solved dependent tokens", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const solvedOutcome: ValidationInteractionOutcome = {
+      mode: "gn-link",
+      sentenceId: sentence.id,
+      interactionId: "t1",
+      dimension: "gnLinkTarget",
+      expected: "t3",
+      received: "t3",
+      correct: true
+    }
+
+    const state = updateAnswerTrackingState(createInitialAnswerTrackingState(), [solvedOutcome])
+    const constraints = deriveRoundConstraints(state, "gn-link", sentence)
+
+    expect(constraints.lockedInteractionIds).toEqual(["t1"])
+    expect(constraints.eligibleInteractionIds).toEqual(["t2", "t4"])
   })
 })

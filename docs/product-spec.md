@@ -56,6 +56,9 @@ Player links:
 1. Determiner -> noun
 2. Adjective -> noun
 
+Current MVP scoring for GN Linking is link-exact:
+- +1 for each correct determiner/adjective -> noun link
+
 ### Mode D: Gender and Number
 
 Player selects gender and number for nouns.

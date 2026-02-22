@@ -98,4 +98,33 @@ describe("feedback helpers", () => {
       'Received structure token id "t999" for part "predicate" that does not exist in the sentence.'
     )
   })
+
+  test("formats GN-link incorrect-link feedback", () => {
+    const message = formatValidationFeedbackMessage({
+      code: "gn-link.incorrect_link",
+      level: "error",
+      params: {
+        dependentId: "t2",
+        expectedNounId: "t3",
+        receivedNounId: "t6",
+        linkKind: "adjective"
+      }
+    })
+
+    expect(message).toBe(
+      'Incorrect adjective link for token "t2": expected noun "t3", received "t6".'
+    )
+  })
+
+  test("formats GN-link unknown dependent feedback", () => {
+    const message = formatValidationFeedbackMessage({
+      code: "gn-link.unknown_dependent",
+      level: "error",
+      params: {
+        dependentId: "t999"
+      }
+    })
+
+    expect(message).toBe('Received GN link for unknown dependent token id "t999".')
+  })
 })

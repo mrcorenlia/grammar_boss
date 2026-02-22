@@ -8,6 +8,7 @@ import {
 } from "./core";
 import TaggingMode from "./modes/TaggingMode";
 import StructureMode from "./modes/StructureMode";
+import GNLinkMode from "./modes/GNLinkMode";
 import HPBar from "./ui/HPBar";
 import "./App.css";
 
@@ -180,6 +181,32 @@ function App() {
             setLastResult({
               sentenceId: currentSentence.id,
               mode: "structure",
+              result
+            });
+            setBossState(result.bossState);
+            setAwaitingNextSentence(!result.bossState?.defeated);
+          }}
+        />
+      ) : currentMode === "gn-link" ? (
+        <GNLinkMode
+          sentence={currentSentence}
+          lastResult={visibleResult}
+          submitDisabled={isBossDefeated || awaitingNextSentence}
+          lockedLinkIds={roundConstraints.lockedInteractionIds}
+          preAnsweredLinkIds={roundConstraints.preAnsweredInteractionIds}
+          onSubmit={(payload) => {
+            if (isBossDefeated || awaitingNextSentence) {
+              return;
+            }
+
+            const result = battleEngine.validateRound({
+              mode: "gn-link",
+              sentence: currentSentence,
+              userInput: payload
+            });
+            setLastResult({
+              sentenceId: currentSentence.id,
+              mode: "gn-link",
               result
             });
             setBossState(result.bossState);

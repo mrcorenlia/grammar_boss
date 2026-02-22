@@ -55,6 +55,36 @@ export const formatValidationFeedbackMessage = (
     return `Received structure token id "${tokenId}" for part "${partId}" that does not exist in the sentence.`
   }
 
+  if (feedback.code === "gn-link.missing_link") {
+    const dependentId = readStringParam(feedback.params, "dependentId") ?? "unknown"
+    const expectedNounId =
+      readStringParam(feedback.params, "expectedNounId") ?? "unknown"
+    const linkKind = readStringParam(feedback.params, "linkKind") ?? "dependent"
+    return `Missing ${linkKind} link for token "${dependentId}"; expected noun "${expectedNounId}".`
+  }
+
+  if (feedback.code === "gn-link.incorrect_link") {
+    const dependentId = readStringParam(feedback.params, "dependentId") ?? "unknown"
+    const expectedNounId =
+      readStringParam(feedback.params, "expectedNounId") ?? "unknown"
+    const receivedNounId =
+      readStringParam(feedback.params, "receivedNounId") ?? "unknown"
+    const linkKind = readStringParam(feedback.params, "linkKind") ?? "dependent"
+    return `Incorrect ${linkKind} link for token "${dependentId}": expected noun "${expectedNounId}", received "${receivedNounId}".`
+  }
+
+  if (feedback.code === "gn-link.unknown_dependent") {
+    const dependentId = readStringParam(feedback.params, "dependentId") ?? "unknown"
+    return `Received GN link for unknown dependent token id "${dependentId}".`
+  }
+
+  if (feedback.code === "gn-link.unknown_noun") {
+    const dependentId = readStringParam(feedback.params, "dependentId") ?? "unknown"
+    const receivedNounId =
+      readStringParam(feedback.params, "receivedNounId") ?? "unknown"
+    return `Received GN link target "${receivedNounId}" for token "${dependentId}" that is not a noun in this sentence.`
+  }
+
   if (feedback.code === "engine.unregistered_mode") {
     const mode = readStringParam(feedback.params, "mode") ?? "unknown"
     return `No validator registered for mode "${mode}".`

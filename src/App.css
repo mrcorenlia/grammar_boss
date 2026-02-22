@@ -152,6 +152,17 @@
   margin-top: 1rem;
 }
 
+.gn-link-controls {
+  margin-top: 1rem;
+}
+
+.gn-link-nouns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
 .structure-role-picker {
   display: flex;
   flex-wrap: wrap;

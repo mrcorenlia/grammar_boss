@@ -45,7 +45,7 @@ describe("battleEngine", () => {
 
     const engine = createBattleEngine({}, { basePointsPerCorrect: 1 })
     const result = engine.validateRound({
-      mode: "gn-link",
+      mode: "agreement",
       sentence,
       userInput: {}
     })
@@ -53,13 +53,13 @@ describe("battleEngine", () => {
     expect(result.correct).toBe(false)
     expect(result.score).toBe(0)
     expect(result.mistakes).toEqual([
-      'No validator registered for mode "gn-link".'
+      'No validator registered for mode "agreement".'
     ])
     expect(result.feedback).toEqual([
       {
         code: "engine.unregistered_mode",
         level: "error",
-        params: { mode: "gn-link" }
+        params: { mode: "agreement" }
       }
     ])
     expect(result.comboState).toEqual({

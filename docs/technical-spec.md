@@ -94,6 +94,11 @@ export type StructureModeUserInput = {
   complementTokenIds?: string[];
   eligiblePartIds?: Array<"subject" | "predicate" | "complement">;
 };
+
+export type GNLinkModeUserInput = {
+  dependentIdToNounId: Record<string, string>;
+  eligibleLinkIds?: string[];
+};
 ```
 
 ### 4.2 Battle Engine Contract
@@ -196,6 +201,7 @@ To prevent hardcoded answer coupling:
     validation.ts
     validateTagMode.ts
     validateStructureMode.ts
+    validateGNLinkMode.ts
     contentValidation.ts
     contentRepository.ts
     types.ts
@@ -245,4 +251,5 @@ Rule: never build animation before engine contracts are stable.
 2. Suggested test files:
    - `validateTagMode.test.ts`
    - `validateStructureMode.test.ts`
+   - `validateGNLinkMode.test.ts`
 3. Tests verify determinism and non-mutation behavior.

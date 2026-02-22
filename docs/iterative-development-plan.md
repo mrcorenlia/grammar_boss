@@ -199,9 +199,9 @@ Issue `I6-1`: Structure mode
 
 Issue `I6-2`: GN linking mode
 
-- [ ] Implement GN link validator in `/core`.
-- [ ] Add GN link mode UI interactions.
-- [ ] Add GN link validator tests.
+- [x] Implement GN link validator in `/core`.
+- [x] Add GN link mode UI interactions.
+- [x] Add GN link validator tests.
 
 Issue `I6-3`: Agreement mode
 
