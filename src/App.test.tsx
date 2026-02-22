@@ -5,6 +5,8 @@ import App from "./App";
 describe("App", () => {
   test("renders mode switch container", () => {
     render(<App />);
+    expect(screen.getByLabelText("Boss HP")).toBeInTheDocument();
+    expect(screen.getByRole("progressbar", { name: "Boss HP progress" })).toBeInTheDocument();
     expect(screen.getByLabelText("Mode switch")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Tagging" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Structure" })).toBeInTheDocument();
@@ -19,6 +21,7 @@ describe("App", () => {
 
     expect(screen.getByText("Round correct: no")).toBeInTheDocument();
     expect(screen.getByText("Round score: 10")).toBeInTheDocument();
+    expect(screen.getByText("170 / 180 HP")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Mistakes" })).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Mistakes list" })).toBeInTheDocument();
   });

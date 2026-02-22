@@ -1,5 +1,5 @@
 import { createBattleEngine } from "./battleEngine"
-import { loadSentencesFromContent } from "./contentRepository"
+import { loadBossesFromContent, loadSentencesFromContent } from "./contentRepository"
 import type { ModeValidator } from "./validation"
 
 describe("battleEngine score+combo integration", () => {
@@ -57,7 +57,8 @@ describe("battleEngine score+combo integration", () => {
     })
     expect(engine.getState()).toEqual({
       comboState: third.comboState,
-      scoreState: third.scoreState
+      scoreState: third.scoreState,
+      bossState: null
     })
   })
 
@@ -169,5 +170,59 @@ describe("battleEngine score+combo integration", () => {
       comboBonus: 0,
       speedBonus: 0
     })
+  })
+
+  test("updates boss HP from engine state and emits part-destroyed events", () => {
+    const sentence = loadSentencesFromContent()[0]
+    const bossTemplate = loadBossesFromContent()[0]
+    expect(sentence).toBeDefined()
+    expect(bossTemplate).toBeDefined()
+    if (!sentence || !bossTemplate) {
+      throw new Error("Sentence and boss fixtures must both exist.")
+    }
+
+    const validator: ModeValidator<{ interactions: number }> = (userInput) => ({
+      correct: false,
+      score: userInput.interactions,
+      mistakes: ["incomplete"]
+    })
+
+    const engine = createBattleEngine(
+      {
+        tagging: validator
+      },
+      {
+        basePointsPerCorrect: 10,
+        bossTemplate
+      }
+    )
+
+    const initialBossState = engine.getState().bossState
+    expect(initialBossState?.currentHP).toBe(180)
+
+    const firstRound = engine.validateRound({
+      mode: "tagging",
+      sentence,
+      userInput: { interactions: 1 }
+    })
+    const secondRound = engine.validateRound({
+      mode: "tagging",
+      sentence,
+      userInput: { interactions: 3 }
+    })
+
+    expect(firstRound.bossState?.currentHP).toBe(170)
+    expect(firstRound.bossEvents).toEqual([])
+    expect(secondRound.bossState?.currentHP).toBe(140)
+    expect(secondRound.bossState?.activePartId).toBe("horn_right")
+    expect(secondRound.bossEvents).toEqual([
+      {
+        type: "boss.part_destroyed",
+        bossId: bossTemplate.id,
+        partId: "horn_left",
+        svgElementId: "horn_left"
+      }
+    ])
+    expect(engine.getState().bossState).toEqual(secondRound.bossState)
   })
 })

@@ -21,7 +21,7 @@ Source of truth: `AGENTS.md` takes precedence over this document
 | 2 | Core Validation | `I2-*` | Iteration 1 | Done |
 | 3 | Basic UI Shell | `I3-*` | Iteration 2 | Done |
 | 4 | Score and Combo | `I4-*` | Iteration 3 | Done |
-| 5 | Boss HP Integration | `I5-*` | Iteration 4 | In Progress |
+| 5 | Boss HP Integration | `I5-*` | Iteration 4 | Done |
 | 6 | Additional Modes | `I6-*` | Iteration 5 | Todo |
 | 7 | Animation and Part Destruction | `I7-*` | Iteration 5 | Todo |
 | 8 | Polish and Adaptive Difficulty | `I8-*` | Iteration 6, 7 | Todo |
@@ -173,15 +173,15 @@ Issue `I5-2`: Sequential damage system
 
 Issue `I5-3`: Boss UI baseline
 
-- [ ] Add HP bar component.
-- [ ] Reflect boss HP updates from engine state.
-- [ ] Confirm `/boss` does not calculate score.
+- [x] Add HP bar component.
+- [x] Reflect boss HP updates from engine state.
+- [x] Confirm `/boss` does not calculate score.
 
 Iteration 5 exit checklist
 
-- [ ] Damage flows through parts sequentially.
-- [ ] HP UI reflects data state.
-- [ ] Engine is the only state transition path.
+- [x] Damage flows through parts sequentially.
+- [x] HP UI reflects data state.
+- [x] Engine is the only state transition path.
 
 ### Iteration 6: Additional Learning Modes (`I6-*`)
 

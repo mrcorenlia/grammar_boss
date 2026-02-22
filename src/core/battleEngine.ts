@@ -1,4 +1,6 @@
 import type {
+  BossState,
+  BossTemplate,
   ComboState,
   GameMode,
   ScoreState,
@@ -15,6 +17,8 @@ import {
   type RoundScoreInput,
   type SpeedBonusHook
 } from "./score"
+import { createBossStateFromTemplate } from "../boss/BossModel"
+import { applyDamageToBossState, type BossDamageEvent } from "../boss/DamageSystem"
 
 export type TaggingRoundPayload = {
   mode: "tagging"
@@ -32,6 +36,8 @@ export type RoundPayload = {
 export type RoundResult = ValidationResult & {
   comboState: ComboState
   scoreState: ScoreState
+  bossState: BossState | null
+  bossEvents: BossDamageEvent[]
 }
 
 const defaultValidators: ValidatorRegistry = {
@@ -42,6 +48,8 @@ export type BattleEngineScoringOptions = {
   basePointsPerCorrect?: number
   speedBonusHook?: SpeedBonusHook
   comboMaxMultiplier?: number
+  bossTemplate?: BossTemplate
+  damageFromRoundScore?: (roundScore: number) => number
 }
 
 export type BattleEngine = {
@@ -49,6 +57,7 @@ export type BattleEngine = {
   getState: () => {
     comboState: ComboState
     scoreState: ScoreState
+    bossState: BossState | null
   }
 }
 
@@ -72,6 +81,41 @@ const cloneScoreState = (value: ScoreState): ScoreState => ({
   speedBonus: value.speedBonus
 })
 
+const cloneBossState = (value: BossState | null): BossState | null => {
+  if (!value) {
+    return null
+  }
+
+  return {
+    id: value.id,
+    name: value.name,
+    maxHP: value.maxHP,
+    currentHP: value.currentHP,
+    activePartId: value.activePartId,
+    parts: value.parts.map((part) => ({
+      id: part.id,
+      name: part.name,
+      maxHP: part.maxHP,
+      currentHP: part.currentHP,
+      svgElementId: part.svgElementId,
+      destroyed: part.destroyed
+    })),
+    defeated: value.defeated
+  }
+}
+
+const normalizeRoundDamage = (
+  roundScore: number,
+  damageFromRoundScore?: (roundScore: number) => number
+): number => {
+  const rawDamage = damageFromRoundScore ? damageFromRoundScore(roundScore) : roundScore
+  if (!Number.isFinite(rawDamage)) {
+    return 0
+  }
+
+  return Math.max(0, Math.trunc(rawDamage))
+}
+
 // Engine entrypoint for UI mode payloads.
 // UI should submit interactions to this API instead of invoking validators directly.
 export const createBattleEngine = (
@@ -84,6 +128,9 @@ export const createBattleEngine = (
   }
   let comboState = createInitialComboState(scoringOptions.comboMaxMultiplier)
   let scoreState = createInitialScoreState()
+  let bossState = scoringOptions.bossTemplate
+    ? createBossStateFromTemplate(scoringOptions.bossTemplate)
+    : null
 
   const validateRound = (payload: RoundPayload): RoundResult => {
     const validator = validators[payload.mode]
@@ -149,6 +196,18 @@ export const createBattleEngine = (
     comboState = nextComboState
     scoreState = nextScoreState
 
+    let bossEvents: BossDamageEvent[] = []
+    let bossDamageApplied = 0
+    if (bossState) {
+      bossDamageApplied = normalizeRoundDamage(
+        totalRoundScore,
+        scoringOptions.damageFromRoundScore
+      )
+      const bossDamageResult = applyDamageToBossState(bossState, bossDamageApplied)
+      bossState = bossDamageResult.state
+      bossEvents = bossDamageResult.events
+    }
+
     return {
       ...baseValidationResult,
       score: totalRoundScore,
@@ -162,16 +221,28 @@ export const createBattleEngine = (
           comboBonus,
           roundScore: totalRoundScore,
           totalScore: nextScoreState.totalScore
-        }
+        },
+        boss: bossState
+          ? {
+              damageApplied: bossDamageApplied,
+              currentHP: bossState.currentHP,
+              maxHP: bossState.maxHP,
+              activePartId: bossState.activePartId,
+              defeated: bossState.defeated
+            }
+          : undefined
       },
       comboState: cloneComboState(nextComboState),
-      scoreState: cloneScoreState(nextScoreState)
+      scoreState: cloneScoreState(nextScoreState),
+      bossState: cloneBossState(bossState),
+      bossEvents
     }
   }
 
   const getState = () => ({
     comboState: cloneComboState(comboState),
-    scoreState: cloneScoreState(scoreState)
+    scoreState: cloneScoreState(scoreState),
+    bossState: cloneBossState(bossState)
   })
 
   return {

@@ -1,21 +1,33 @@
 import { useMemo, useState } from "react";
 import {
   createBattleEngine,
+  loadBossesFromContent,
   loadSentencesFromContent,
   type GameMode,
   type ValidationResult
 } from "./core";
 import TaggingMode from "./modes/TaggingMode";
+import HPBar from "./ui/HPBar";
 import "./App.css";
 
 // A React "function component" is a JavaScript function that returns JSX.
 // JSX looks like HTML, but it is compiled into JavaScript function calls.
 function App() {
   const sentences = useMemo(() => loadSentencesFromContent(), []);
-  const battleEngine = useMemo(() => createBattleEngine(), []);
+  const bosses = useMemo(() => loadBossesFromContent(), []);
+  const initialBossTemplate = bosses[0] ?? null;
+  const battleEngine = useMemo(
+    () =>
+      createBattleEngine(
+        {},
+        initialBossTemplate ? { bossTemplate: initialBossTemplate } : {}
+      ),
+    [initialBossTemplate]
+  );
   const currentSentence = sentences[0] ?? null;
   const [currentMode, setCurrentMode] = useState<GameMode>("tagging");
   const [lastResult, setLastResult] = useState<ValidationResult | null>(null);
+  const [bossState, setBossState] = useState(() => battleEngine.getState().bossState);
   const [secretAutofillVersion, setSecretAutofillVersion] = useState(0);
 
   if (!currentSentence) {
@@ -48,7 +60,9 @@ function App() {
         </span>
         attle
       </h1>
-      <p>Iteration 4 score and combo integration is complete.</p>
+      <p>Iteration 5 boss HP integration is complete.</p>
+
+      <HPBar bossState={bossState} />
 
       <section className="mode-switch" aria-label="Mode switch">
         <button
@@ -94,6 +108,7 @@ function App() {
               userInput: payload
             });
             setLastResult(result);
+            setBossState(result.bossState);
           }}
         />
       ) : (
