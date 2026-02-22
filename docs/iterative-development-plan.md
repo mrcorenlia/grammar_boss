@@ -141,9 +141,9 @@ Issue `I4-1`: Score module
 
 Issue `I4-2`: Combo module
 
-- [ ] Add combo increment on fully correct rounds.
-- [ ] Add combo reset on incorrect rounds.
-- [ ] Cap multiplier progression at 3x.
+- [x] Add combo increment on fully correct rounds.
+- [x] Add combo reset on incorrect rounds.
+- [x] Cap multiplier progression at 3x.
 
 Issue `I4-3`: Engine integration
 

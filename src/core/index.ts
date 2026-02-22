@@ -24,6 +24,9 @@ export type {
 // Normalized feedback helpers used by UI display layers.
 export { formatValidationFeedbackMessage, getValidationMistakeMessages } from "./feedback"
 
+// Combo module exports used by engine integration in Iteration 4.
+export { calculateComboMultiplier, createInitialComboState, updateComboState } from "./combo"
+
 // Score module exports used by engine integration in Iteration 4.
 export type { RoundScoreInput, RoundScoreResult, SpeedBonusHook, SpeedBonusHookContext } from "./score"
 export { calculateBaseScore, calculateRoundScore } from "./score"
