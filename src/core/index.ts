@@ -16,9 +16,13 @@ export type {
   Sentence,
   SentenceStructure,
   Token,
+  ValidationFeedbackMessage,
   ValidationBreakdown,
   ValidationResult
 } from "./types";
+
+// Normalized feedback helpers used by UI display layers.
+export { formatValidationFeedbackMessage, getValidationMistakeMessages } from "./feedback"
 
 // Content validation exports used by tests and future fixture checks.
 export type { ContentValidationError, ContentValidationResult } from "./contentValidation"

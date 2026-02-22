@@ -91,6 +91,12 @@ type ValidationResult = {
   correct: boolean;
   score: number;
   mistakes: string[];
+  feedback?: Array<{
+    code: string;
+    level: "error" | "info";
+    params?: Record<string, string | number | boolean | null>;
+    tokenId?: string;
+  }>;
   breakdown?: object;
 };
 ```

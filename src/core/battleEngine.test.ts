@@ -44,6 +44,13 @@ describe("battleEngine", () => {
     expect(result.mistakes).toEqual([
       'No validator registered for mode "structure".'
     ])
+    expect(result.feedback).toEqual([
+      {
+        code: "engine.unregistered_mode",
+        level: "error",
+        params: { mode: "structure" }
+      }
+    ])
   })
 
   test("uses validator registry dispatch for tagging payloads", () => {

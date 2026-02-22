@@ -1,4 +1,9 @@
-import type { GameMode, Sentence, ValidationResult } from "./types"
+import type {
+  GameMode,
+  Sentence,
+  ValidationFeedbackMessage,
+  ValidationResult
+} from "./types"
 
 // Shared validator contract for all gameplay modes.
 // Every mode validator takes raw user input + the current sentence and returns
@@ -21,6 +26,45 @@ const isRecord = (value: unknown): value is UnknownRecord =>
 const isStringArray = (value: unknown): value is string[] =>
   Array.isArray(value) && value.every((item) => typeof item === "string")
 
+const isValidationFeedbackMessage = (
+  value: unknown
+): value is ValidationFeedbackMessage => {
+  if (!isRecord(value)) {
+    return false
+  }
+
+  if (typeof value.code !== "string" || value.code.length === 0) {
+    return false
+  }
+
+  if (value.level !== "error" && value.level !== "info") {
+    return false
+  }
+
+  if (value.tokenId !== undefined && typeof value.tokenId !== "string") {
+    return false
+  }
+
+  if (value.params !== undefined) {
+    if (!isRecord(value.params)) {
+      return false
+    }
+
+    for (const paramValue of Object.values(value.params)) {
+      if (
+        paramValue !== null &&
+        typeof paramValue !== "string" &&
+        typeof paramValue !== "number" &&
+        typeof paramValue !== "boolean"
+      ) {
+        return false
+      }
+    }
+  }
+
+  return true
+}
+
 // Runtime guard for cross-module safety.
 // TypeScript enforces compile-time contracts, but this catches malformed
 // values from future dynamic integrations or unsafe casts.
@@ -41,6 +85,15 @@ export const isValidationResult = (value: unknown): value is ValidationResult =>
     return false
   }
 
+  if (value.feedback !== undefined) {
+    if (
+      !Array.isArray(value.feedback) ||
+      !value.feedback.every((item) => isValidationFeedbackMessage(item))
+    ) {
+      return false
+    }
+  }
+
   if (value.breakdown !== undefined) {
     if (!isRecord(value.breakdown)) {
       return false
@@ -55,7 +108,7 @@ export const isValidationResult = (value: unknown): value is ValidationResult =>
 export const assertValidationResult = (value: unknown): ValidationResult => {
   if (!isValidationResult(value)) {
     throw new Error(
-      "Validator output must match ValidationResult: { correct:boolean, score:number, mistakes:string[], breakdown?:Record<string, unknown> }."
+      "Validator output must match ValidationResult: { correct:boolean, score:number, mistakes:string[], feedback?:ValidationFeedbackMessage[], breakdown?:Record<string, unknown> }."
     )
   }
 
@@ -63,6 +116,25 @@ export const assertValidationResult = (value: unknown): ValidationResult => {
     correct: value.correct,
     score: value.score,
     mistakes: [...value.mistakes]
+  }
+
+  if (value.feedback !== undefined) {
+    normalized.feedback = value.feedback.map((message) => {
+      const normalizedMessage: ValidationFeedbackMessage = {
+        code: message.code,
+        level: message.level
+      }
+
+      if (message.tokenId !== undefined) {
+        normalizedMessage.tokenId = message.tokenId
+      }
+
+      if (message.params !== undefined) {
+        normalizedMessage.params = { ...message.params }
+      }
+
+      return normalizedMessage
+    })
   }
 
   if (value.breakdown !== undefined) {

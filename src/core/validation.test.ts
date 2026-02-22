@@ -13,6 +13,18 @@ describe("validation contracts", () => {
       correct: true,
       score: 12,
       mistakes: [],
+      feedback: [
+        {
+          code: "tagging.missing_pos",
+          level: "error",
+          tokenId: "t1",
+          params: {
+            tokenId: "t1",
+            tokenText: "La",
+            expectedPOS: "DET"
+          }
+        }
+      ],
       breakdown: { round: 1 }
     }
 
@@ -24,7 +36,13 @@ describe("validation contracts", () => {
     const invalidResult = {
       correct: true,
       score: 12,
-      mistakes: "not-an-array"
+      mistakes: [],
+      feedback: [
+        {
+          code: "tagging.missing_pos",
+          level: "warning"
+        }
+      ]
     }
 
     expect(isValidationResult(invalidResult)).toBe(false)

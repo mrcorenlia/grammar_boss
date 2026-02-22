@@ -4,6 +4,15 @@
 // - values can be anything, but must be narrowed before use
 export type ValidationBreakdown = Record<string, unknown>;
 
+// Structured feedback message emitted by validators/engine.
+// UI can map `code` + `params` to mode-specific copy without parsing free text.
+export type ValidationFeedbackMessage = {
+  code: string;
+  level: "error" | "info";
+  params?: Record<string, string | number | boolean | null>;
+  tokenId?: string;
+};
+
 // Standard output format for any validation function in the engine.
 // Keeping one shared result shape makes modes interchangeable.
 export type ValidationResult = {
@@ -13,6 +22,8 @@ export type ValidationResult = {
   score: number;
   // Human-readable reasons for mistakes (can be shown by UI).
   mistakes: string[];
+  // Structured feedback for UX-controlled display and localization.
+  feedback?: ValidationFeedbackMessage[];
   // Optional deeper data for analytics/debug/advanced feedback.
   breakdown?: ValidationBreakdown;
 };

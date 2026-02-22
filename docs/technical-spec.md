@@ -49,13 +49,22 @@ All mode validation functions must:
 2. Return `ValidationResult`.
 3. Be deterministic.
 4. Avoid argument mutation.
+5. Emit normalized `feedback` messages (`code` + `params`) when possible; `mistakes` remains as legacy fallback text.
 
 ```ts
 export type ValidationResult = {
   correct: boolean;
   score: number;
   mistakes: string[];
+  feedback?: ValidationFeedbackMessage[];
   breakdown?: Record<string, unknown>;
+};
+
+export type ValidationFeedbackMessage = {
+  code: string;
+  level: "error" | "info";
+  params?: Record<string, string | number | boolean | null>;
+  tokenId?: string;
 };
 
 export type ModeValidator<UserInput = unknown> = (
@@ -119,6 +128,7 @@ To prevent hardcoded answer coupling:
 /src
   /core
     battleEngine.ts
+    feedback.ts
     validation.ts
     validateTagMode.ts
     contentValidation.ts

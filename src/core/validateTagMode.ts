@@ -1,5 +1,6 @@
 import type { ModeValidator } from "./validation"
-import type { PartOfSpeech } from "./types"
+import type { PartOfSpeech, ValidationFeedbackMessage } from "./types"
+import { formatValidationFeedbackMessage } from "./feedback"
 
 // Input contract for POS tagging mode.
 // Keys are token ids and values are the player's selected POS labels.
@@ -26,7 +27,7 @@ export const validateTagMode: ModeValidator<TagModeUserInput> = (userInput, sent
   const tokenIdToPOS = userInput.tokenIdToPOS
   const tokenIds = new Set(sentence.tokens.map((token) => token.id))
   const tokenChecks: TagTokenCheck[] = []
-  const mistakes: string[] = []
+  const feedback: ValidationFeedbackMessage[] = []
   let correctTokenCount = 0
   let missingTokenCount = 0
   let incorrectTokenCount = 0
@@ -42,9 +43,16 @@ export const validateTagMode: ModeValidator<TagModeUserInput> = (userInput, sent
         receivedPOS: null,
         correct: false
       })
-      mistakes.push(
-        `Missing POS tag for token "${token.text}" (${token.id}); expected ${token.partOfSpeech}.`
-      )
+      feedback.push({
+        code: "tagging.missing_pos",
+        level: "error",
+        tokenId: token.id,
+        params: {
+          tokenId: token.id,
+          tokenText: token.text,
+          expectedPOS: token.partOfSpeech
+        }
+      })
       continue
     }
 
@@ -54,9 +62,17 @@ export const validateTagMode: ModeValidator<TagModeUserInput> = (userInput, sent
       correctTokenCount += 1
     } else {
       incorrectTokenCount += 1
-      mistakes.push(
-        `Incorrect POS tag for token "${token.text}" (${token.id}): expected ${token.partOfSpeech}, received ${receivedPOS}.`
-      )
+      feedback.push({
+        code: "tagging.incorrect_pos",
+        level: "error",
+        tokenId: token.id,
+        params: {
+          tokenId: token.id,
+          tokenText: token.text,
+          expectedPOS: token.partOfSpeech,
+          receivedPOS
+        }
+      })
     }
 
     tokenChecks.push({
@@ -73,7 +89,14 @@ export const validateTagMode: ModeValidator<TagModeUserInput> = (userInput, sent
     .sort()
 
   for (const tokenId of unexpectedTokenIds) {
-    mistakes.push(`Received POS tag for unknown token id "${tokenId}".`)
+    feedback.push({
+      code: "tagging.unknown_token",
+      level: "error",
+      tokenId,
+      params: {
+        tokenId
+      }
+    })
   }
 
   const totalTokens = sentence.tokens.length
@@ -81,11 +104,13 @@ export const validateTagMode: ModeValidator<TagModeUserInput> = (userInput, sent
     (value) => typeof value === "string" && value.trim().length > 0
   ).length
   const score = correctTokenCount
+  const mistakes = feedback.map((message) => formatValidationFeedbackMessage(message))
 
   return {
-    correct: mistakes.length === 0 && correctTokenCount === totalTokens,
+    correct: feedback.length === 0 && correctTokenCount === totalTokens,
     score,
     mistakes,
+    feedback,
     breakdown: {
       mode: "tagging",
       totalTokens,

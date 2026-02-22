@@ -2,6 +2,7 @@ import type { GameMode, Sentence, ValidationResult } from "./types"
 import type { TagModeUserInput } from "./validateTagMode"
 import { validateTagMode } from "./validateTagMode"
 import { executeValidator, type ModeValidator, type ValidatorRegistry } from "./validation"
+import { formatValidationFeedbackMessage } from "./feedback"
 
 export type TaggingRoundPayload = {
   mode: "tagging"
@@ -36,10 +37,21 @@ export const createBattleEngine = (
   const validateRound = (payload: RoundPayload): ValidationResult => {
     const validator = validators[payload.mode]
     if (!validator) {
+      const feedback = [
+        {
+          code: "engine.unregistered_mode",
+          level: "error" as const,
+          params: {
+            mode: payload.mode
+          }
+        }
+      ]
+
       return {
         correct: false,
         score: 0,
-        mistakes: [`No validator registered for mode "${payload.mode}".`]
+        mistakes: feedback.map((message) => formatValidationFeedbackMessage(message)),
+        feedback
       }
     }
 

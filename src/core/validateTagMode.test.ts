@@ -21,6 +21,7 @@ describe("validateTagMode", () => {
     expect(result.correct).toBe(true)
     expect(result.score).toBe(sentence.tokens.length)
     expect(result.mistakes).toEqual([])
+    expect(result.feedback).toEqual([])
     expect(result.breakdown).toMatchObject({
       mode: "tagging",
       totalTokens: sentence.tokens.length,
@@ -51,6 +52,23 @@ describe("validateTagMode", () => {
 
     expect(result.correct).toBe(false)
     expect(result.score).toBe(2)
+    expect(result.feedback).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "tagging.incorrect_pos",
+          level: "error"
+        }),
+        expect.objectContaining({
+          code: "tagging.missing_pos",
+          level: "error"
+        }),
+        expect.objectContaining({
+          code: "tagging.unknown_token",
+          level: "error",
+          tokenId: "t999"
+        })
+      ])
+    )
     expect(result.mistakes).toEqual(
       expect.arrayContaining([
         expect.stringContaining("Incorrect POS tag for token"),

@@ -71,4 +71,37 @@ describe("TaggingMode", () => {
     expect(screen.getByText("Round correct: yes")).toBeInTheDocument();
     expect(screen.getByText("None")).toBeInTheDocument();
   });
+
+  test("prefers normalized feedback messages over legacy mistakes text", () => {
+    const sentence = loadSentencesFromContent()[0];
+    expect(sentence).toBeDefined();
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.");
+    }
+
+    const result: ValidationResult = {
+      correct: false,
+      score: 0,
+      mistakes: ["legacy string should not be displayed when feedback exists"],
+      feedback: [
+        {
+          code: "tagging.unknown_token",
+          level: "error",
+          tokenId: "t999",
+          params: { tokenId: "t999" }
+        }
+      ]
+    };
+
+    render(
+      <TaggingMode sentence={sentence} onSubmit={() => {}} lastResult={result} />
+    );
+
+    expect(
+      screen.getByText('Received POS tag for unknown token id "t999".')
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("legacy string should not be displayed when feedback exists")
+    ).not.toBeInTheDocument();
+  });
 });

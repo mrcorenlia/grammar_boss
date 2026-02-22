@@ -1,4 +1,4 @@
-import type { ValidationResult } from "../core";
+import { getValidationMistakeMessages, type ValidationResult } from "../core";
 
 type ValidationFeedbackProps = {
   result: ValidationResult | null;
@@ -12,14 +12,16 @@ function ValidationFeedback({ result }: ValidationFeedbackProps) {
     return null;
   }
 
+  const mistakeMessages = getValidationMistakeMessages(result);
+
   return (
     <section className="validation-feedback" aria-label="Validation feedback" aria-live="polite">
       <p>Round correct: {result.correct ? "yes" : "no"}</p>
       <p>Round score: {result.score}</p>
       <h3>Mistakes</h3>
-      {result.mistakes.length > 0 ? (
+      {mistakeMessages.length > 0 ? (
         <ul aria-label="Mistakes list">
-          {result.mistakes.map((mistake, index) => (
+          {mistakeMessages.map((mistake, index) => (
             <li key={`${mistake}-${index}`}>{mistake}</li>
           ))}
         </ul>
