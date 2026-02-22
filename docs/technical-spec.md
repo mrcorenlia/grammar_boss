@@ -129,6 +129,7 @@ To prevent hardcoded answer coupling:
   /core
     battleEngine.ts
     feedback.ts
+    score.ts
     validation.ts
     validateTagMode.ts
     contentValidation.ts

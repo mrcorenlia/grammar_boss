@@ -20,7 +20,7 @@ Source of truth: `AGENTS.md` takes precedence over this document
 | 1 | Content Contracts | `I1-*` | Iteration 0 | Done |
 | 2 | Core Validation | `I2-*` | Iteration 1 | Done |
 | 3 | Basic UI Shell | `I3-*` | Iteration 2 | Done |
-| 4 | Score and Combo | `I4-*` | Iteration 3 | Todo |
+| 4 | Score and Combo | `I4-*` | Iteration 3 | In Progress |
 | 5 | Boss HP Integration | `I5-*` | Iteration 4 | Todo |
 | 6 | Additional Modes | `I6-*` | Iteration 5 | Todo |
 | 7 | Animation and Part Destruction | `I7-*` | Iteration 5 | Todo |
@@ -135,9 +135,9 @@ Iteration 3 exit checklist
 
 Issue `I4-1`: Score module
 
-- [ ] Add base score calculation.
-- [ ] Add optional speed bonus hook.
-- [ ] Add deterministic score tests.
+- [x] Add base score calculation.
+- [x] Add optional speed bonus hook.
+- [x] Add deterministic score tests.
 
 Issue `I4-2`: Combo module
 

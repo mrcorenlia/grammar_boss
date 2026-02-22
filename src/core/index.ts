@@ -24,6 +24,10 @@ export type {
 // Normalized feedback helpers used by UI display layers.
 export { formatValidationFeedbackMessage, getValidationMistakeMessages } from "./feedback"
 
+// Score module exports used by engine integration in Iteration 4.
+export type { RoundScoreInput, RoundScoreResult, SpeedBonusHook, SpeedBonusHookContext } from "./score"
+export { calculateBaseScore, calculateRoundScore } from "./score"
+
 // Content validation exports used by tests and future fixture checks.
 export type { ContentValidationError, ContentValidationResult } from "./contentValidation"
 export { validateBossesContent, validateSentencesContent } from "./contentValidation"
