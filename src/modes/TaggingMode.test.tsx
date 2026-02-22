@@ -16,6 +16,7 @@ describe("TaggingMode", () => {
         sentence={sentence}
         onSubmit={(payload) => submittedPayloads.push(payload)}
         lastResult={null}
+        secretAutofillVersion={0}
       />
     );
 
@@ -40,7 +41,12 @@ describe("TaggingMode", () => {
     };
 
     render(
-      <TaggingMode sentence={sentence} onSubmit={() => {}} lastResult={result} />
+      <TaggingMode
+        sentence={sentence}
+        onSubmit={() => {}}
+        lastResult={result}
+        secretAutofillVersion={0}
+      />
     );
 
     expect(screen.getByText("Round correct: no")).toBeInTheDocument();
@@ -65,7 +71,12 @@ describe("TaggingMode", () => {
     };
 
     render(
-      <TaggingMode sentence={sentence} onSubmit={() => {}} lastResult={result} />
+      <TaggingMode
+        sentence={sentence}
+        onSubmit={() => {}}
+        lastResult={result}
+        secretAutofillVersion={0}
+      />
     );
 
     expect(screen.getByText("Round correct: yes")).toBeInTheDocument();
@@ -94,7 +105,12 @@ describe("TaggingMode", () => {
     };
 
     render(
-      <TaggingMode sentence={sentence} onSubmit={() => {}} lastResult={result} />
+      <TaggingMode
+        sentence={sentence}
+        onSubmit={() => {}}
+        lastResult={result}
+        secretAutofillVersion={0}
+      />
     );
 
     expect(
@@ -103,5 +119,41 @@ describe("TaggingMode", () => {
     expect(
       screen.queryByText("legacy string should not be displayed when feedback exists")
     ).not.toBeInTheDocument();
+  });
+
+  test("autofills all correct tags when the secret trigger version changes", () => {
+    const sentence = loadSentencesFromContent()[0];
+    expect(sentence).toBeDefined();
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.");
+    }
+
+    const submittedPayloads: Array<{ tokenIdToPOS: Record<string, string> }> = [];
+    const { rerender } = render(
+      <TaggingMode
+        sentence={sentence}
+        onSubmit={(payload) => submittedPayloads.push(payload)}
+        lastResult={null}
+        secretAutofillVersion={0}
+      />
+    );
+
+    rerender(
+      <TaggingMode
+        sentence={sentence}
+        onSubmit={(payload) => submittedPayloads.push(payload)}
+        lastResult={null}
+        secretAutofillVersion={1}
+      />
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+
+    expect(submittedPayloads).toEqual([
+      {
+        tokenIdToPOS: Object.fromEntries(
+          sentence.tokens.map((token) => [token.id, token.partOfSpeech])
+        )
+      }
+    ]);
   });
 });

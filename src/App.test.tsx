@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { loadSentencesFromContent } from "./core";
 import App from "./App";
 
 describe("App", () => {
@@ -20,6 +21,24 @@ describe("App", () => {
     expect(screen.getByText("Round score: 10")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Mistakes" })).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Mistakes list" })).toBeInTheDocument();
+  });
+
+  test("secret click on the Battle B autofills correct answers for tagging mode", () => {
+    const sentence = loadSentencesFromContent()[0];
+    expect(sentence).toBeDefined();
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.");
+    }
+
+    render(<App />);
+
+    fireEvent.click(screen.getByTestId("secret-autofill-trigger"));
+    fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+
+    expect(screen.getByText("Round correct: yes")).toBeInTheDocument();
+    expect(
+      screen.getByText(`Round score: ${sentence.tokens.length * 20}`)
+    ).toBeInTheDocument();
   });
 
   test("switches modes in the mode shell container", () => {

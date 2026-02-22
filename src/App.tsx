@@ -16,6 +16,7 @@ function App() {
   const currentSentence = sentences[0] ?? null;
   const [currentMode, setCurrentMode] = useState<GameMode>("tagging");
   const [lastResult, setLastResult] = useState<ValidationResult | null>(null);
+  const [secretAutofillVersion, setSecretAutofillVersion] = useState(0);
 
   if (!currentSentence) {
     return (
@@ -31,7 +32,22 @@ function App() {
     // React uses className because class is a reserved JavaScript keyword.
     <main className="app">
       {/* These nodes render like normal HTML elements in the browser. */}
-      <h1>Grammar Boss Battle</h1>
+      <h1>
+        Grammar Boss{" "}
+        <span
+          className="secret-trigger"
+          data-testid="secret-autofill-trigger"
+          onClick={() => {
+            // Only implemented modes can react to the secret trigger.
+            if (currentMode === "tagging") {
+              setSecretAutofillVersion((value) => value + 1);
+            }
+          }}
+        >
+          B
+        </span>
+        attle
+      </h1>
       <p>Iteration 4 score and combo integration is complete.</p>
 
       <section className="mode-switch" aria-label="Mode switch">
@@ -69,6 +85,7 @@ function App() {
         <TaggingMode
           sentence={currentSentence}
           lastResult={lastResult}
+          secretAutofillVersion={secretAutofillVersion}
           onSubmit={(payload) => {
             // App routes player payloads to battleEngine only.
             const result = battleEngine.validateRound({

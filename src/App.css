@@ -10,6 +10,11 @@
   line-height: 1.1;
 }
 
+.secret-trigger,
+.secret-trigger:hover {
+  cursor: default;
+}
+
 .app p {
   margin: 0;
   color: #334155;

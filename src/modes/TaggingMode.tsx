@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Sentence, ValidationResult } from "../core";
 import { type TagModeUserInput } from "../core";
 import SentenceRenderer from "../ui/SentenceRenderer";
@@ -8,6 +8,7 @@ type TaggingModeProps = {
   sentence: Sentence;
   onSubmit: (payload: TagModeUserInput) => void;
   lastResult: ValidationResult | null;
+  secretAutofillVersion: number;
 };
 
 const posOptions = [
@@ -25,7 +26,12 @@ const posOptions = [
   "PUNCT"
 ] as const;
 
-function TaggingMode({ sentence, onSubmit, lastResult }: TaggingModeProps) {
+function TaggingMode({
+  sentence,
+  onSubmit,
+  lastResult,
+  secretAutofillVersion
+}: TaggingModeProps) {
   const [activeTokenId, setActiveTokenId] = useState<string | null>(null);
   const [tokenIdToPOS, setTokenIdToPOS] = useState<Record<string, string>>({});
 
@@ -60,6 +66,18 @@ function TaggingMode({ sentence, onSubmit, lastResult }: TaggingModeProps) {
   const handleSubmit = () => {
     onSubmit({ tokenIdToPOS: { ...tokenIdToPOS } });
   };
+
+  useEffect(() => {
+    if (secretAutofillVersion <= 0) {
+      return;
+    }
+
+    // Easter egg helper: prefill tags from sentence content answers.
+    setTokenIdToPOS(
+      Object.fromEntries(sentence.tokens.map((token) => [token.id, token.partOfSpeech]))
+    );
+    setActiveTokenId(null);
+  }, [secretAutofillVersion, sentence]);
 
   return (
     <section className="mode-panel" aria-label="Tagging mode">
