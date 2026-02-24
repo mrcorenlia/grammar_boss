@@ -85,6 +85,47 @@ export const formatValidationFeedbackMessage = (
     return `Received GN link target "${receivedNounId}" for token "${dependentId}" that is not a noun in this sentence.`
   }
 
+  if (feedback.code === "agreement.missing_gender") {
+    const nounText = readStringParam(feedback.params, "nounText") ?? "noun"
+    const nounId = readStringParam(feedback.params, "nounId") ?? "unknown"
+    const expectedGender =
+      readStringParam(feedback.params, "expectedGender") ?? "unknown"
+    return `Missing gender for noun "${nounText}" (${nounId}); expected ${expectedGender}.`
+  }
+
+  if (feedback.code === "agreement.missing_number") {
+    const nounText = readStringParam(feedback.params, "nounText") ?? "noun"
+    const nounId = readStringParam(feedback.params, "nounId") ?? "unknown"
+    const expectedNumber =
+      readStringParam(feedback.params, "expectedNumber") ?? "unknown"
+    return `Missing number for noun "${nounText}" (${nounId}); expected ${expectedNumber}.`
+  }
+
+  if (feedback.code === "agreement.incorrect_gender") {
+    const nounText = readStringParam(feedback.params, "nounText") ?? "noun"
+    const nounId = readStringParam(feedback.params, "nounId") ?? "unknown"
+    const expectedGender =
+      readStringParam(feedback.params, "expectedGender") ?? "unknown"
+    const receivedGender =
+      readStringParam(feedback.params, "receivedGender") ?? "unknown"
+    return `Incorrect gender for noun "${nounText}" (${nounId}): expected ${expectedGender}, received ${receivedGender}.`
+  }
+
+  if (feedback.code === "agreement.incorrect_number") {
+    const nounText = readStringParam(feedback.params, "nounText") ?? "noun"
+    const nounId = readStringParam(feedback.params, "nounId") ?? "unknown"
+    const expectedNumber =
+      readStringParam(feedback.params, "expectedNumber") ?? "unknown"
+    const receivedNumber =
+      readStringParam(feedback.params, "receivedNumber") ?? "unknown"
+    return `Incorrect number for noun "${nounText}" (${nounId}): expected ${expectedNumber}, received ${receivedNumber}.`
+  }
+
+  if (feedback.code === "agreement.unknown_noun") {
+    const nounId = readStringParam(feedback.params, "nounId") ?? "unknown"
+    return `Received agreement data for unknown noun id "${nounId}".`
+  }
+
   if (feedback.code === "engine.unregistered_mode") {
     const mode = readStringParam(feedback.params, "mode") ?? "unknown"
     return `No validator registered for mode "${mode}".`

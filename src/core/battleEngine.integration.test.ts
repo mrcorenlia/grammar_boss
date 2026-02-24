@@ -624,6 +624,157 @@ describe("battleEngine score+combo integration", () => {
     )
   })
 
+  test("scores agreement mode by exact noun gender+number and tracks stats", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const engine = createBattleEngine({}, { basePointsPerCorrect: 10 })
+    const result = engine.validateRound({
+      mode: "agreement",
+      sentence,
+      userInput: {
+        nounIdToGender: {
+          t3: "f"
+        },
+        nounIdToNumber: {
+          t3: "s"
+        }
+      }
+    })
+
+    expect(result.correct).toBe(true)
+    expect(result.constraints.eligibleInteractionIds).toEqual(["t3"])
+    expect(result.score).toBe(20)
+    expect(result.playerStats.byMode.agreement).toEqual({
+      attempts: 1,
+      correct: 1,
+      incorrect: 0
+    })
+    expect(result.playerStats.byDimension.agreementGenderNumber).toEqual({
+      attempts: 1,
+      correct: 1,
+      incorrect: 0
+    })
+  })
+
+  test("locks solved agreement interactions when the sentence repeats", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const engine = createBattleEngine(
+      {},
+      {
+        basePointsPerCorrect: 10,
+        comboMaxMultiplier: 1
+      }
+    )
+
+    const firstRound = engine.validateRound({
+      mode: "agreement",
+      sentence,
+      userInput: {
+        nounIdToGender: {
+          t3: "f"
+        },
+        nounIdToNumber: {
+          t3: "s"
+        }
+      }
+    })
+    const secondRound = engine.validateRound({
+      mode: "agreement",
+      sentence,
+      userInput: {
+        nounIdToGender: {
+          t3: "f"
+        },
+        nounIdToNumber: {
+          t3: "s"
+        }
+      }
+    })
+
+    expect(firstRound.constraints.lockedInteractionIds).toEqual([])
+    expect(firstRound.score).toBe(10)
+    expect(secondRound.constraints.lockedInteractionIds).toEqual(["t3"])
+    expect(secondRound.constraints.eligibleInteractionIds).toEqual([])
+    expect(secondRound.score).toBe(0)
+  })
+
+  test("applies pre-answered rule and confusion tracking for agreement mode", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const skippedEngine = createBattleEngine(
+      {},
+      {
+        basePointsPerCorrect: 10,
+        preAnsweredRule: ({ mode }) => mode === "agreement"
+      }
+    )
+    const skippedResult = skippedEngine.validateRound({
+      mode: "agreement",
+      sentence,
+      userInput: {
+        nounIdToGender: {
+          t3: "f"
+        },
+        nounIdToNumber: {
+          t3: "s"
+        }
+      }
+    })
+
+    expect(skippedResult.constraints.eligibleInteractionIds).toEqual([])
+    expect(skippedResult.score).toBe(0)
+    expect(skippedResult.feedback).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "engine.no_eligible_interactions",
+          level: "info"
+        })
+      ])
+    )
+
+    const confusionEngine = createBattleEngine(
+      {},
+      {
+        basePointsPerCorrect: 10,
+        comboMaxMultiplier: 1
+      }
+    )
+    const confusionResult = confusionEngine.validateRound({
+      mode: "agreement",
+      sentence,
+      userInput: {
+        nounIdToGender: {
+          t3: "m"
+        },
+        nounIdToNumber: {
+          t3: "p"
+        }
+      }
+    })
+
+    expect(confusionResult.playerStats.byDimension.agreementGenderNumber).toEqual({
+      attempts: 1,
+      correct: 0,
+      incorrect: 1
+    })
+    expect(
+      confusionResult.playerStats.confusionByDimension.agreementGenderNumber?.["f|s"]?.["m|p"]
+    ).toBe(1)
+  })
+
   test("updates boss HP from engine state and emits part-destroyed events", () => {
     const sentence = loadSentencesFromContent()[0]
     const bossTemplate = loadBossesFromContent()[0]

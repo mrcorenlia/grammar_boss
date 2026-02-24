@@ -63,6 +63,9 @@ Current MVP scoring for GN Linking is link-exact:
 
 Player selects gender and number for nouns.
 
+Current MVP scoring for Agreement mode is noun-exact:
+- +1 for each noun where both gender and number are correct
+
 ## 4. Core Game Loop
 
 Micro-loop target: 10-30 seconds.

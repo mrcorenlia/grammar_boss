@@ -22,7 +22,7 @@ Source of truth: `AGENTS.md` takes precedence over this document
 | 3 | Basic UI Shell | `I3-*` | Iteration 2 | Done |
 | 4 | Score and Combo | `I4-*` | Iteration 3 | Done |
 | 5 | Boss HP Integration | `I5-*` | Iteration 4 | Done |
-| 6 | Additional Modes | `I6-*` | Iteration 5 | In Progress |
+| 6 | Additional Modes | `I6-*` | Iteration 5 | Done |
 | 7 | Animation and Part Destruction | `I7-*` | Iteration 5 | Todo |
 | 8 | Polish and Adaptive Difficulty | `I8-*` | Iteration 6, 7 | Todo |
 
@@ -205,18 +205,18 @@ Issue `I6-2`: GN linking mode
 
 Issue `I6-3`: Agreement mode
 
-- [ ] Implement agreement validator in `/core`.
-- [ ] Add Agreement mode UI interactions.
-- [ ] Add agreement validator tests.
+- [x] Implement agreement validator in `/core`.
+- [x] Add Agreement mode UI interactions.
+- [x] Add agreement validator tests.
 
 Iteration 6 exit checklist
 
 - [x] Solved interactions lock when repeated in the same battle.
 - [x] Pre-answered rule path works for selective interaction eligibility.
 - [x] Player stats contracts are emitted for future graphing.
-- [ ] All new validators are pure and tested.
-- [ ] `/modes` contains no validation logic.
-- [ ] Engine remains mode-agnostic via validator dispatch.
+- [x] All new validators are pure and tested.
+- [x] `/modes` contains no validation logic.
+- [x] Engine remains mode-agnostic via validator dispatch.
 
 ### Iteration 7: Part Destruction and Animation (`I7-*`)
 

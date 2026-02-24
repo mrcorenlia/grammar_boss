@@ -18,6 +18,8 @@ import type { StructureModeUserInput } from "./validateStructureMode"
 import { validateStructureMode } from "./validateStructureMode"
 import type { GNLinkModeUserInput } from "./validateGNLinkMode"
 import { validateGNLinkMode } from "./validateGNLinkMode"
+import type { AgreementModeUserInput } from "./validateAgreementMode"
+import { validateAgreementMode } from "./validateAgreementMode"
 import { executeValidator, type ModeValidator, type ValidatorRegistry } from "./validation"
 import { formatValidationFeedbackMessage } from "./feedback"
 import { createInitialComboState, updateComboState } from "./combo"
@@ -61,6 +63,12 @@ export type GNLinkRoundPayload = {
   sentence: Sentence
 }
 
+export type AgreementRoundPayload = {
+  mode: "agreement"
+  userInput: AgreementModeUserInput
+  sentence: Sentence
+}
+
 export type RoundResult = ValidationResult & {
   comboState: ComboState
   scoreState: ScoreState
@@ -73,10 +81,16 @@ export type RoundResult = ValidationResult & {
 const defaultValidators: ValidatorRegistry = {
   tagging: validateTagMode as ModeValidator<any>,
   structure: validateStructureMode as ModeValidator<any>,
-  "gn-link": validateGNLinkMode as ModeValidator<any>
+  "gn-link": validateGNLinkMode as ModeValidator<any>,
+  agreement: validateAgreementMode as ModeValidator<any>
 }
 
-const constraintEnabledModes = new Set<GameMode>(["tagging", "structure", "gn-link"])
+const constraintEnabledModes = new Set<GameMode>([
+  "tagging",
+  "structure",
+  "gn-link",
+  "agreement"
+])
 
 export type BattleEngineScoringOptions = {
   basePointsPerCorrect?: number
@@ -264,6 +278,20 @@ const injectEligibleLinkIds = (
   }
 }
 
+const injectEligibleNounIds = (
+  userInput: unknown,
+  eligibleNounIds: string[]
+): unknown => {
+  if (!isRecord(userInput)) {
+    return userInput
+  }
+
+  return {
+    ...userInput,
+    eligibleNounIds: [...eligibleNounIds]
+  }
+}
+
 const cloneFeedback = (
   feedback: ValidationFeedbackMessage[] | undefined
 ): ValidationFeedbackMessage[] =>
@@ -382,6 +410,9 @@ export const createBattleEngine = (
       }
       if (payload.mode === "gn-link") {
         userInput = injectEligibleLinkIds(userInput, constraints.eligibleInteractionIds)
+      }
+      if (payload.mode === "agreement") {
+        userInput = injectEligibleNounIds(userInput, constraints.eligibleInteractionIds)
       }
       baseValidationResult = executeValidator(
         validator as ModeValidator<any>,

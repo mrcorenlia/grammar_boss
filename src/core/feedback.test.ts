@@ -127,4 +127,33 @@ describe("feedback helpers", () => {
 
     expect(message).toBe('Received GN link for unknown dependent token id "t999".')
   })
+
+  test("formats agreement incorrect-gender feedback", () => {
+    const message = formatValidationFeedbackMessage({
+      code: "agreement.incorrect_gender",
+      level: "error",
+      params: {
+        nounId: "t3",
+        nounText: "maison",
+        expectedGender: "f",
+        receivedGender: "m"
+      }
+    })
+
+    expect(message).toBe(
+      'Incorrect gender for noun "maison" (t3): expected f, received m.'
+    )
+  })
+
+  test("formats agreement unknown noun feedback", () => {
+    const message = formatValidationFeedbackMessage({
+      code: "agreement.unknown_noun",
+      level: "error",
+      params: {
+        nounId: "t999"
+      }
+    })
+
+    expect(message).toBe('Received agreement data for unknown noun id "t999".')
+  })
 })

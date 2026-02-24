@@ -163,6 +163,22 @@
   justify-content: center;
 }
 
+.agreement-controls {
+  margin-top: 1rem;
+}
+
+.agreement-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.agreement-note {
+  margin-top: 0.75rem;
+  font-size: 0.92rem;
+}
+
 .structure-role-picker {
   display: flex;
   flex-wrap: wrap;

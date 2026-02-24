@@ -116,11 +116,20 @@ describe("App", () => {
     expect(screen.getByText("Sentence 2 of 2")).toBeInTheDocument();
   });
 
-  test("keeps placeholder shell for unimplemented agreement mode", () => {
+  test("supports agreement mode interaction flow through battleEngine", () => {
     render(<App />);
 
     fireEvent.click(screen.getByRole("button", { name: "Agreement" }));
-    expect(screen.getByText("agreement mode")).toBeInTheDocument();
-    expect(screen.getByText("This mode shell is not implemented yet.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Agreement Mode" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "maison" }));
+    fireEvent.click(screen.getByRole("button", { name: "Gender: F" }));
+    fireEvent.click(screen.getByRole("button", { name: "Number: S" }));
+    fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+
+    expect(screen.getByText("Round correct: yes")).toBeInTheDocument();
+    expect(screen.getByText("Round score: 20")).toBeInTheDocument();
+    expect(screen.getByText("160 / 180 HP")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Next Sentence" }));
+    expect(screen.getByText("Sentence 2 of 2")).toBeInTheDocument();
   });
 });

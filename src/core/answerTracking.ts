@@ -90,6 +90,10 @@ const listInteractionsForMode = (
     return listGNLinkInteractions(sentence)
   }
 
+  if (mode === "agreement") {
+    return listAgreementInteractions(sentence)
+  }
+
   return []
 }
 
@@ -192,6 +196,27 @@ export const listGNLinkInteractions = (sentence: Sentence): InteractionDescripto
       ]
     })
 }
+
+// Agreement interactions are noun-level gender+number checks.
+// Only nouns with both gender and number present are answerable interactions.
+export const listAgreementInteractions = (sentence: Sentence): InteractionDescriptor[] =>
+  sentence.tokens.flatMap((token) => {
+    if (
+      token.partOfSpeech !== "NOUN" ||
+      (token.gender !== "m" && token.gender !== "f") ||
+      (token.number !== "s" && token.number !== "p")
+    ) {
+      return []
+    }
+
+    return [
+      {
+        interactionId: token.id,
+        dimension: "agreementGenderNumber",
+        expected: `${token.gender}|${token.number}`
+      }
+    ]
+  })
 
 // Creates a fresh in-memory tracking state for a new battle.
 export const createInitialAnswerTrackingState = (): AnswerTrackingState => ({

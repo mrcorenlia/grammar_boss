@@ -3,6 +3,7 @@ import {
   buildInteractionKey,
   createInitialAnswerTrackingState,
   deriveRoundConstraints,
+  listAgreementInteractions,
   listGNLinkInteractions,
   listStructureInteractions,
   updateAnswerTrackingState
@@ -229,5 +230,47 @@ describe("answerTracking", () => {
 
     expect(constraints.lockedInteractionIds).toEqual(["t1"])
     expect(constraints.eligibleInteractionIds).toEqual(["t2", "t4"])
+  })
+
+  test("lists agreement interactions as noun-level descriptors", () => {
+    const sentence = loadSentencesFromContent()[1]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least two sentences.")
+    }
+
+    const interactions = listAgreementInteractions(sentence)
+
+    expect(interactions).toEqual([
+      {
+        interactionId: "t6",
+        dimension: "agreementGenderNumber",
+        expected: "m|s"
+      }
+    ])
+  })
+
+  test("derives agreement constraints and locks solved noun interactions", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const solvedOutcome: ValidationInteractionOutcome = {
+      mode: "agreement",
+      sentenceId: sentence.id,
+      interactionId: "t3",
+      dimension: "agreementGenderNumber",
+      expected: "f|s",
+      received: "f|s",
+      correct: true
+    }
+
+    const state = updateAnswerTrackingState(createInitialAnswerTrackingState(), [solvedOutcome])
+    const constraints = deriveRoundConstraints(state, "agreement", sentence)
+
+    expect(constraints.lockedInteractionIds).toEqual(["t3"])
+    expect(constraints.eligibleInteractionIds).toEqual([])
   })
 })

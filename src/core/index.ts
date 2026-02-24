@@ -38,7 +38,7 @@ export type { RoundScoreInput, RoundScoreResult, SpeedBonusHook, SpeedBonusHookC
 export { calculateBaseScore, calculateRoundScore } from "./score"
 
 // Answer tracking contracts used for cross-round locking and player stats.
-export { buildInteractionKey, createInitialAnswerTrackingState, deriveRoundConstraints, listGNLinkInteractions, listStructureInteractions, listTaggingInteractions, updateAnswerTrackingState } from "./answerTracking"
+export { buildInteractionKey, createInitialAnswerTrackingState, deriveRoundConstraints, listAgreementInteractions, listGNLinkInteractions, listStructureInteractions, listTaggingInteractions, updateAnswerTrackingState } from "./answerTracking"
 export type { PreAnsweredRule } from "./answerTracking"
 
 // Content validation exports used by tests and future fixture checks.
@@ -56,6 +56,7 @@ export { assertValidationResult, executeValidator, isValidationResult } from "./
 export type {
   BattleEngine,
   BattleEngineScoringOptions,
+  AgreementRoundPayload,
   PreAnsweredRuleContext,
   GNLinkRoundPayload,
   RoundPayload,
@@ -76,3 +77,11 @@ export { validateStructureMode } from "./validateStructureMode"
 // GN-link mode validator exports.
 export type { GNLinkModeUserInput, GNLinkKind } from "./validateGNLinkMode"
 export { validateGNLinkMode } from "./validateGNLinkMode"
+
+// Agreement mode validator exports.
+export type {
+  AgreementGender,
+  AgreementModeUserInput,
+  AgreementNumber
+} from "./validateAgreementMode"
+export { validateAgreementMode } from "./validateAgreementMode"

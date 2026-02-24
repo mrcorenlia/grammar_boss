@@ -99,6 +99,12 @@ export type GNLinkModeUserInput = {
   dependentIdToNounId: Record<string, string>;
   eligibleLinkIds?: string[];
 };
+
+export type AgreementModeUserInput = {
+  nounIdToGender: Record<string, string>;
+  nounIdToNumber: Record<string, string>;
+  eligibleNounIds?: string[];
+};
 ```
 
 ### 4.2 Battle Engine Contract
@@ -202,6 +208,7 @@ To prevent hardcoded answer coupling:
     validateTagMode.ts
     validateStructureMode.ts
     validateGNLinkMode.ts
+    validateAgreementMode.ts
     contentValidation.ts
     contentRepository.ts
     types.ts
@@ -252,4 +259,5 @@ Rule: never build animation before engine contracts are stable.
    - `validateTagMode.test.ts`
    - `validateStructureMode.test.ts`
    - `validateGNLinkMode.test.ts`
+   - `validateAgreementMode.test.ts`
 3. Tests verify determinism and non-mutation behavior.

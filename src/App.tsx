@@ -9,6 +9,7 @@ import {
 import TaggingMode from "./modes/TaggingMode";
 import StructureMode from "./modes/StructureMode";
 import GNLinkMode from "./modes/GNLinkMode";
+import AgreementMode from "./modes/AgreementMode";
 import HPBar from "./ui/HPBar";
 import "./App.css";
 
@@ -207,6 +208,32 @@ function App() {
             setLastResult({
               sentenceId: currentSentence.id,
               mode: "gn-link",
+              result
+            });
+            setBossState(result.bossState);
+            setAwaitingNextSentence(!result.bossState?.defeated);
+          }}
+        />
+      ) : currentMode === "agreement" ? (
+        <AgreementMode
+          sentence={currentSentence}
+          lastResult={visibleResult}
+          submitDisabled={isBossDefeated || awaitingNextSentence}
+          lockedNounIds={roundConstraints.lockedInteractionIds}
+          preAnsweredNounIds={roundConstraints.preAnsweredInteractionIds}
+          onSubmit={(payload) => {
+            if (isBossDefeated || awaitingNextSentence) {
+              return;
+            }
+
+            const result = battleEngine.validateRound({
+              mode: "agreement",
+              sentence: currentSentence,
+              userInput: payload
+            });
+            setLastResult({
+              sentenceId: currentSentence.id,
+              mode: "agreement",
               result
             });
             setBossState(result.bossState);

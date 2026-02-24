@@ -45,7 +45,7 @@ describe("battleEngine", () => {
 
     const engine = createBattleEngine({}, { basePointsPerCorrect: 1 })
     const result = engine.validateRound({
-      mode: "agreement",
+      mode: "unknown-mode" as any,
       sentence,
       userInput: {}
     })
@@ -53,13 +53,13 @@ describe("battleEngine", () => {
     expect(result.correct).toBe(false)
     expect(result.score).toBe(0)
     expect(result.mistakes).toEqual([
-      'No validator registered for mode "agreement".'
+      'No validator registered for mode "unknown-mode".'
     ])
     expect(result.feedback).toEqual([
       {
         code: "engine.unregistered_mode",
         level: "error",
-        params: { mode: "agreement" }
+        params: { mode: "unknown-mode" }
       }
     ])
     expect(result.comboState).toEqual({
