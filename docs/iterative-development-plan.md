@@ -228,9 +228,9 @@ Issue `I7-1`: Visual damage states
 
 Issue `I7-2`: Part destruction flow
 
-- [ ] Trigger explosion on destroyed parts.
-- [ ] Remove SVG nodes by stable part ids.
-- [ ] Add sound hook points for destroyed events.
+- [x] Trigger explosion on destroyed parts.
+- [x] Remove SVG nodes by stable part ids.
+- [x] Add sound hook points for destroyed events.
 
 Issue `I7-3`: Animation reliability tests
 

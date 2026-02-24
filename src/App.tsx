@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   createBattleEngine,
   loadBossesFromContent,
@@ -11,7 +11,7 @@ import StructureMode from "./modes/StructureMode";
 import GNLinkMode from "./modes/GNLinkMode";
 import AgreementMode from "./modes/AgreementMode";
 import BossRenderer from "./boss/BossRenderer";
-import type { BossDamageEvent } from "./boss/DamageSystem";
+import type { BossDamageEvent, BossPartDestroyedEvent } from "./boss/DamageSystem";
 import { useBossVisualState } from "./animation/useBossVisualState";
 import HPBar from "./ui/HPBar";
 import "./App.css";
@@ -44,9 +44,17 @@ function App() {
   const [animationRoundId, setAnimationRoundId] = useState(0);
   const [lastBossEvents, setLastBossEvents] = useState<BossDamageEvent[]>([]);
   const isBossDefeated = bossState?.defeated ?? false;
+  const handlePartDestroyedSound = useCallback(
+    (event: BossPartDestroyedEvent) => {
+      // Hook point: wire a sound effect player here in a later iteration.
+      void event;
+    },
+    []
+  );
   const bossVisualState = useBossVisualState({
     roundId: animationRoundId,
-    events: lastBossEvents
+    events: lastBossEvents,
+    onPartDestroyed: handlePartDestroyedSound
   });
 
   const visibleResult =
@@ -110,6 +118,8 @@ function App() {
       <BossRenderer
         bossState={bossState}
         crackedPartIds={bossVisualState.crackedPartIds}
+        explodingPartIds={bossVisualState.explodingPartIds}
+        removedPartIds={bossVisualState.removedPartIds}
         flashActive={bossVisualState.flashActive}
         shakeActive={bossVisualState.shakeActive}
       />

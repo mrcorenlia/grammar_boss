@@ -9,6 +9,8 @@ describe("BossRenderer", () => {
       <BossRenderer
         bossState={null}
         crackedPartIds={new Set<string>()}
+        explodingPartIds={new Set<string>()}
+        removedPartIds={new Set<string>()}
         flashActive={false}
         shakeActive={false}
       />
@@ -52,6 +54,8 @@ describe("BossRenderer", () => {
       <BossRenderer
         bossState={renderedState}
         crackedPartIds={new Set([firstPart.id, secondPart.id])}
+        explodingPartIds={new Set([firstPart.id])}
+        removedPartIds={new Set<string>()}
         flashActive={true}
         shakeActive={true}
       />
@@ -71,8 +75,43 @@ describe("BossRenderer", () => {
     const destroyedNode = container.querySelector(`g#${firstPart.svgElementId}`)
     const activeNode = container.querySelector(`g#${secondPart.svgElementId}`)
     expect(destroyedNode).toHaveClass("is-cracked")
+    expect(destroyedNode).toHaveClass("is-exploding")
     expect(destroyedNode).toHaveClass("is-destroyed")
     expect(activeNode).toHaveClass("is-active")
     expect(activeNode).toHaveClass("is-cracked")
+  })
+
+  test("omits parts that were removed after explosion completion", () => {
+    const template = loadBossesFromContent()[0]
+    expect(template).toBeDefined()
+    if (!template) {
+      throw new Error("Boss fixture must include at least one boss.")
+    }
+
+    const state = createBossStateFromTemplate(template)
+    const firstPart = state.parts[0]
+    const secondPart = state.parts[1]
+    expect(firstPart).toBeDefined()
+    expect(secondPart).toBeDefined()
+    if (!firstPart || !secondPart) {
+      throw new Error("Boss fixture must include at least two parts.")
+    }
+
+    const { container } = render(
+      <BossRenderer
+        bossState={state}
+        crackedPartIds={new Set([firstPart.id])}
+        explodingPartIds={new Set<string>()}
+        removedPartIds={new Set([firstPart.id])}
+        flashActive={false}
+        shakeActive={false}
+      />
+    )
+
+    expect(container.querySelector(`g#${firstPart.svgElementId}`)).toBeNull()
+    const remainingSecondPartRect = container.querySelector(
+      `g#${secondPart.svgElementId} rect`
+    )
+    expect(remainingSecondPartRect).toHaveAttribute("x", "124")
   })
 })

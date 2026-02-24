@@ -180,6 +180,10 @@ Animation layer must:
 2. Subscribe to engine events only.
 3. Use stable SVG part ids.
 4. Prefer CSS classes over inline styles.
+5. Trigger flash/shake from `boss.part_damaged`.
+6. Start per-part explosion from `boss.part_destroyed`, then remove SVG nodes by stable ids.
+7. Expose sound hook points for destroyed-part events without coupling sound playback to `/core`.
+8. Respect reduced-motion by disabling transient motion while preserving semantic state updates (cracks/removal).
 
 ### 4.5 Content Loading Contract
 
@@ -237,8 +241,6 @@ To prevent hardcoded answer coupling:
   /animation
     effects.ts
     useBossVisualState.ts
-    shake.ts
-    explode.ts
 
   App.tsx
 ```

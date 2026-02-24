@@ -93,6 +93,29 @@ describe("App", () => {
     }
   });
 
+  test("applies explosion class then removes destroyed part nodes by stable svg id", () => {
+    vi.useFakeTimers();
+    try {
+      const { container } = render(<App />);
+
+      fireEvent.click(screen.getByTestId("secret-autofill-trigger"));
+      fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+
+      const hornLeftSelector = "g#horn_left";
+      const hornLeftDuringExplosion = container.querySelector(hornLeftSelector);
+      expect(hornLeftDuringExplosion).not.toBeNull();
+      expect(hornLeftDuringExplosion).toHaveClass("is-exploding");
+
+      act(() => {
+        vi.advanceTimersByTime(320);
+      });
+
+      expect(container.querySelector(hornLeftSelector)).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   test("disables Validate Round when the boss is defeated", () => {
     const sentences = loadSentencesFromContent();
     expect(sentences.length).toBeGreaterThanOrEqual(2);

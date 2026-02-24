@@ -1,23 +1,29 @@
-import { useEffect, useMemo, useState } from "react"
-import type { BossDamageEvent } from "../boss/DamageSystem"
+import { useEffect, useMemo, useRef, useState } from "react"
+import type { BossDamageEvent, BossPartDestroyedEvent } from "../boss/DamageSystem"
 import {
   createInitialBossVisualState,
-  deriveBossVisualState
+  deriveBossVisualState,
+  finalizeAllPartExplosions,
+  finalizePartExplosion
 } from "./effects"
 
 type UseBossVisualStateInput = {
   roundId: number
   events: BossDamageEvent[]
+  onPartDestroyed?: (event: BossPartDestroyedEvent) => void
 }
 
 type UseBossVisualStateResult = {
   crackedPartIds: ReadonlySet<string>
+  explodingPartIds: ReadonlySet<string>
+  removedPartIds: ReadonlySet<string>
   flashActive: boolean
   shakeActive: boolean
 }
 
 const FLASH_DURATION_MS = 180
 const SHAKE_DURATION_MS = 260
+const EXPLOSION_DURATION_MS = 320
 
 const readReducedMotionPreference = (): boolean => {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
@@ -30,9 +36,12 @@ const readReducedMotionPreference = (): boolean => {
 // Subscribes the UI layer to engine boss events and exposes animation flags.
 export const useBossVisualState = ({
   roundId,
-  events
+  events,
+  onPartDestroyed
 }: UseBossVisualStateInput): UseBossVisualStateResult => {
   const [visualState, setVisualState] = useState(createInitialBossVisualState)
+  const explosionTimerByPartIdRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
+  const lastSoundHookRoundIdRef = useRef(-1)
   const prefersReducedMotion = useMemo(readReducedMotionPreference, [])
 
   useEffect(() => {
@@ -43,6 +52,20 @@ export const useBossVisualState = ({
       })
     )
   }, [events, roundId])
+
+  useEffect(() => {
+    if (!onPartDestroyed || roundId <= lastSoundHookRoundIdRef.current) {
+      return
+    }
+
+    for (const event of events) {
+      if (event.type === "boss.part_destroyed") {
+        onPartDestroyed(event)
+      }
+    }
+
+    lastSoundHookRoundIdRef.current = roundId
+  }, [events, onPartDestroyed, roundId])
 
   useEffect(() => {
     if (visualState.lastProcessedRoundId < 0) {
@@ -95,13 +118,55 @@ export const useBossVisualState = ({
     }
   }, [prefersReducedMotion, visualState.lastProcessedRoundId])
 
+  useEffect(() => {
+    const explodingPartIds = Object.keys(visualState.explodingPartIds)
+    if (explodingPartIds.length === 0) {
+      return
+    }
+
+    if (prefersReducedMotion) {
+      setVisualState((previousState) => finalizeAllPartExplosions(previousState))
+      return
+    }
+
+    for (const partId of explodingPartIds) {
+      if (explosionTimerByPartIdRef.current[partId]) {
+        continue
+      }
+
+      explosionTimerByPartIdRef.current[partId] = setTimeout(() => {
+        delete explosionTimerByPartIdRef.current[partId]
+        setVisualState((previousState) => finalizePartExplosion(previousState, partId))
+      }, EXPLOSION_DURATION_MS)
+    }
+  }, [prefersReducedMotion, visualState.explodingPartIds])
+
+  useEffect(
+    () => () => {
+      for (const timer of Object.values(explosionTimerByPartIdRef.current)) {
+        clearTimeout(timer)
+      }
+    },
+    []
+  )
+
   const crackedPartIds = useMemo(
     () => new Set(Object.keys(visualState.crackedPartIds)),
     [visualState.crackedPartIds]
   )
+  const explodingPartIds = useMemo(
+    () => new Set(Object.keys(visualState.explodingPartIds)),
+    [visualState.explodingPartIds]
+  )
+  const removedPartIds = useMemo(
+    () => new Set(Object.keys(visualState.removedPartIds)),
+    [visualState.removedPartIds]
+  )
 
   return {
     crackedPartIds,
+    explodingPartIds,
+    removedPartIds,
     flashActive: visualState.flashActive,
     shakeActive: visualState.shakeActive
   }

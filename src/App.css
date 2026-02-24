@@ -108,6 +108,12 @@
   opacity: 0.45;
 }
 
+.boss-part.is-exploding rect,
+.boss-part.is-exploding text {
+  animation: boss-part-explode 320ms ease-out forwards;
+  transform-origin: center;
+}
+
 @keyframes boss-flash {
   0% {
     filter: brightness(1.35);
@@ -135,6 +141,21 @@
   }
   100% {
     transform: translateX(0);
+  }
+}
+
+@keyframes boss-part-explode {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  70% {
+    opacity: 0.85;
+    transform: scale(1.12);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.28);
   }
 }
 

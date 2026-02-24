@@ -20,6 +20,11 @@ export type BossDamageEvent =
       bossId: string
     }
 
+export type BossPartDestroyedEvent = Extract<
+  BossDamageEvent,
+  { type: "boss.part_destroyed" }
+>
+
 export type BossDamageResult = {
   state: BossState
   events: BossDamageEvent[]
