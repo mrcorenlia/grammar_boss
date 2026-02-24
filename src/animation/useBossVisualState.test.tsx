@@ -113,6 +113,12 @@ describe("useBossVisualState", () => {
         bossId: "b1",
         partId: "horn_right",
         svgElementId: "horn_right"
+      },
+      {
+        type: "boss.part_destroyed",
+        bossId: "b1",
+        partId: "horn_right",
+        svgElementId: "horn_right"
       }
     ]
 
@@ -123,6 +129,12 @@ describe("useBossVisualState", () => {
     expect(probe).toHaveAttribute("data-exploding", "horn_right")
     expect(probe).toHaveAttribute("data-removed", "")
     expect(onPartDestroyed).toHaveBeenCalledTimes(1)
+    expect(onPartDestroyed).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "boss.part_destroyed",
+        partId: "horn_right"
+      })
+    )
 
     // Re-processing identical round id must not trigger duplicate sound hooks.
     view.rerender(
@@ -135,6 +147,22 @@ describe("useBossVisualState", () => {
     })
     expect(probe).toHaveAttribute("data-exploding", "")
     expect(probe).toHaveAttribute("data-removed", "horn_right")
+
+    // Replaying the same round payload after removal should remain idempotent.
+    view.rerender(
+      <BossVisualProbe roundId={2} events={roundEvents} onPartDestroyed={onPartDestroyed} />
+    )
+    expect(probe).toHaveAttribute("data-exploding", "")
+    expect(probe).toHaveAttribute("data-removed", "horn_right")
+    expect(onPartDestroyed).toHaveBeenCalledTimes(1)
+
+    // Replaying stale destruction in a later round should not duplicate effects.
+    view.rerender(
+      <BossVisualProbe roundId={3} events={roundEvents} onPartDestroyed={onPartDestroyed} />
+    )
+    expect(probe).toHaveAttribute("data-exploding", "")
+    expect(probe).toHaveAttribute("data-removed", "horn_right")
+    expect(onPartDestroyed).toHaveBeenCalledTimes(1)
   })
 
   test("respects reduced-motion by skipping flash/shake while retaining cracks", async () => {

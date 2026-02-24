@@ -206,4 +206,30 @@ describe("animation effects state", () => {
       core: true
     })
   })
+
+  test("does not restart explosion for a part already removed in a previous round", () => {
+    const previous: BossVisualState = {
+      crackedPartIds: { core: true },
+      explodingPartIds: {},
+      removedPartIds: { core: true },
+      flashActive: false,
+      shakeActive: false,
+      lastProcessedRoundId: 9
+    }
+
+    const next = deriveBossVisualState(previous, {
+      roundId: 10,
+      events: [
+        {
+          type: "boss.part_destroyed",
+          bossId: "b1",
+          partId: "core",
+          svgElementId: "core"
+        }
+      ]
+    })
+
+    expect(next.explodingPartIds).toEqual({})
+    expect(next.removedPartIds).toEqual({ core: true })
+  })
 })

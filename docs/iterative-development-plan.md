@@ -234,15 +234,15 @@ Issue `I7-2`: Part destruction flow
 
 Issue `I7-3`: Animation reliability tests
 
-- [ ] Add tests for repeated event idempotency.
-- [ ] Add tests preventing duplicate destruction effects.
-- [ ] Add tests for class cleanup between rounds.
+- [x] Add tests for repeated event idempotency.
+- [x] Add tests preventing duplicate destruction effects.
+- [x] Add tests for class cleanup between rounds.
 
 Iteration 7 exit checklist
 
-- [ ] Visual state consistently reflects data state.
-- [ ] Repeat events do not double-apply effects.
-- [ ] SVG ids remain stable and mapped.
+- [x] Visual state consistently reflects data state.
+- [x] Repeat events do not double-apply effects.
+- [x] SVG ids remain stable and mapped.
 
 ### Iteration 8: Polish and Adaptive Difficulty (`I8-*`)
 

@@ -116,6 +116,30 @@ describe("App", () => {
     }
   });
 
+  test("cleans transient boss animation classes on the next non-damaging round", () => {
+    vi.useFakeTimers();
+    try {
+      const { container } = render(<App />);
+      const renderer = screen.getByLabelText("Boss renderer");
+
+      fireEvent.click(screen.getByRole("button", { name: "maison" }));
+      fireEvent.click(screen.getByRole("button", { name: "NOUN" }));
+      fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+
+      expect(renderer).toHaveClass("is-flashing");
+      expect(renderer).toHaveClass("is-shaking");
+
+      fireEvent.click(screen.getByRole("button", { name: "Next Sentence" }));
+      fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+
+      expect(renderer).not.toHaveClass("is-flashing");
+      expect(renderer).not.toHaveClass("is-shaking");
+      expect(container.querySelector(".boss-part.is-exploding")).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   test("disables Validate Round when the boss is defeated", () => {
     const sentences = loadSentencesFromContent();
     expect(sentences.length).toBeGreaterThanOrEqual(2);

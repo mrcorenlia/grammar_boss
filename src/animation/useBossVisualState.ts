@@ -58,14 +58,21 @@ export const useBossVisualState = ({
       return
     }
 
+    // De-duplicate part-destroyed events within a round so sound hooks fire once per part.
+    const processedPartIds = new Set<string>()
     for (const event of events) {
-      if (event.type === "boss.part_destroyed") {
+      if (
+        event.type === "boss.part_destroyed" &&
+        !visualState.removedPartIds[event.partId] &&
+        !processedPartIds.has(event.partId)
+      ) {
         onPartDestroyed(event)
+        processedPartIds.add(event.partId)
       }
     }
 
     lastSoundHookRoundIdRef.current = roundId
-  }, [events, onPartDestroyed, roundId])
+  }, [events, onPartDestroyed, roundId, visualState.removedPartIds])
 
   useEffect(() => {
     if (visualState.lastProcessedRoundId < 0) {
