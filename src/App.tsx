@@ -10,6 +10,9 @@ import TaggingMode from "./modes/TaggingMode";
 import StructureMode from "./modes/StructureMode";
 import GNLinkMode from "./modes/GNLinkMode";
 import AgreementMode from "./modes/AgreementMode";
+import BossRenderer from "./boss/BossRenderer";
+import type { BossDamageEvent } from "./boss/DamageSystem";
+import { useBossVisualState } from "./animation/useBossVisualState";
 import HPBar from "./ui/HPBar";
 import "./App.css";
 
@@ -38,7 +41,13 @@ function App() {
   const [bossState, setBossState] = useState(() => battleEngine.getState().bossState);
   const [secretAutofillVersion, setSecretAutofillVersion] = useState(0);
   const [awaitingNextSentence, setAwaitingNextSentence] = useState(false);
+  const [animationRoundId, setAnimationRoundId] = useState(0);
+  const [lastBossEvents, setLastBossEvents] = useState<BossDamageEvent[]>([]);
   const isBossDefeated = bossState?.defeated ?? false;
+  const bossVisualState = useBossVisualState({
+    roundId: animationRoundId,
+    events: lastBossEvents
+  });
 
   const visibleResult =
     lastResult &&
@@ -98,6 +107,12 @@ function App() {
       </p>
 
       <HPBar bossState={bossState} />
+      <BossRenderer
+        bossState={bossState}
+        crackedPartIds={bossVisualState.crackedPartIds}
+        flashActive={bossVisualState.flashActive}
+        shakeActive={bossVisualState.shakeActive}
+      />
 
       <section className="mode-switch" aria-label="Mode switch">
         <button
@@ -159,6 +174,8 @@ function App() {
               result
             });
             setBossState(result.bossState);
+            setLastBossEvents(result.bossEvents);
+            setAnimationRoundId((value) => value + 1);
             setAwaitingNextSentence(!result.bossState?.defeated);
           }}
         />
@@ -185,6 +202,8 @@ function App() {
               result
             });
             setBossState(result.bossState);
+            setLastBossEvents(result.bossEvents);
+            setAnimationRoundId((value) => value + 1);
             setAwaitingNextSentence(!result.bossState?.defeated);
           }}
         />
@@ -211,6 +230,8 @@ function App() {
               result
             });
             setBossState(result.bossState);
+            setLastBossEvents(result.bossEvents);
+            setAnimationRoundId((value) => value + 1);
             setAwaitingNextSentence(!result.bossState?.defeated);
           }}
         />
@@ -237,6 +258,8 @@ function App() {
               result
             });
             setBossState(result.bossState);
+            setLastBossEvents(result.bossEvents);
+            setAnimationRoundId((value) => value + 1);
             setAwaitingNextSentence(!result.bossState?.defeated);
           }}
         />

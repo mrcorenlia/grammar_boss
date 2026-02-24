@@ -14,10 +14,22 @@ describe("DamageSystem", () => {
     const result = applyDamageToBossState(initialState, 10)
 
     const firstPart = result.state.parts[0]
-    expect(firstPart?.id).toBe(template.parts[0]?.id)
-    expect(firstPart?.currentHP).toBe((template.parts[0]?.currentHP ?? 0) - 10)
+    if (!firstPart) {
+      throw new Error("Boss fixture must include at least one part.")
+    }
+    expect(firstPart.id).toBe(template.parts[0]?.id)
+    expect(firstPart.currentHP).toBe((template.parts[0]?.currentHP ?? 0) - 10)
     expect(result.state.currentHP).toBe(initialState.currentHP - 10)
-    expect(result.events).toEqual([])
+    expect(result.events).toEqual([
+      {
+        type: "boss.part_damaged",
+        bossId: initialState.id,
+        partId: firstPart.id,
+        svgElementId: firstPart.svgElementId,
+        damage: 10,
+        remainingHP: 20
+      }
+    ])
     expect(result.overflowDamage).toBe(0)
   })
 
@@ -44,10 +56,26 @@ describe("DamageSystem", () => {
     expect(result.state.activePartId).toBe(secondPart.id)
     expect(result.events).toEqual([
       {
+        type: "boss.part_damaged",
+        bossId: initialState.id,
+        partId: firstPart.id,
+        svgElementId: firstPart.svgElementId,
+        damage: 30,
+        remainingHP: 0
+      },
+      {
         type: "boss.part_destroyed",
         bossId: initialState.id,
         partId: firstPart.id,
         svgElementId: firstPart.svgElementId
+      },
+      {
+        type: "boss.part_damaged",
+        bossId: initialState.id,
+        partId: secondPart.id,
+        svgElementId: secondPart.svgElementId,
+        damage: 5,
+        remainingHP: 25
       }
     ])
     expect(result.overflowDamage).toBe(0)
@@ -76,8 +104,12 @@ describe("DamageSystem", () => {
     const defeatedEvents = result.events.filter(
       (event) => event.type === "boss.defeated"
     )
+    const partDamagedEvents = result.events.filter(
+      (event) => event.type === "boss.part_damaged"
+    )
 
     expect(partDestroyedEvents).toHaveLength(initialState.parts.length)
+    expect(partDamagedEvents).toHaveLength(initialState.parts.length)
     expect(defeatedEvents).toEqual([
       {
         type: "boss.defeated",

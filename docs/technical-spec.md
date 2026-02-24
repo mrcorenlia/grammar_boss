@@ -118,7 +118,7 @@ export type AgreementModeUserInput = {
 5. Emit event payloads for animation and UI feedback.
 6. Commit state transitions.
 7. Return round results that include updated `comboState`, `scoreState`, and `bossState` snapshots.
-8. Emit boss damage events (`boss.part_destroyed`, `boss.defeated`) for animation subscribers.
+8. Emit boss damage events (`boss.part_damaged`, `boss.part_destroyed`, `boss.defeated`) for animation subscribers.
 9. Derive round answer constraints (`locked`, `preAnswered`, `eligible`) before validation.
 10. Track cross-round answer outcomes and in-memory player stats.
 
@@ -167,10 +167,10 @@ Boss parts are independent data units. Damage flows sequentially through parts.
 
 Processing order:
 
-1. Apply incoming damage to current active part.
-2. If part HP <= 0, mark destroyed and emit destruction event.
+1. Apply incoming damage to current active part and emit `boss.part_damaged`.
+2. If part HP <= 0, mark destroyed and emit `boss.part_destroyed`.
 3. Carry remaining damage to next part.
-4. Emit boss defeated event when all parts are destroyed.
+4. Emit `boss.defeated` event when all parts are destroyed.
 
 ### 4.4 Animation Contract
 
@@ -236,6 +236,7 @@ To prevent hardcoded answer coupling:
 
   /animation
     effects.ts
+    useBossVisualState.ts
     shake.ts
     explode.ts
 

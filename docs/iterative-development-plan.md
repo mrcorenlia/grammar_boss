@@ -23,7 +23,7 @@ Source of truth: `AGENTS.md` takes precedence over this document
 | 4 | Score and Combo | `I4-*` | Iteration 3 | Done |
 | 5 | Boss HP Integration | `I5-*` | Iteration 4 | Done |
 | 6 | Additional Modes | `I6-*` | Iteration 5 | Done |
-| 7 | Animation and Part Destruction | `I7-*` | Iteration 5 | Todo |
+| 7 | Animation and Part Destruction | `I7-*` | Iteration 5 | In Progress |
 | 8 | Polish and Adaptive Difficulty | `I8-*` | Iteration 6, 7 | Todo |
 
 ## 3. Issues and Checklists
@@ -222,9 +222,9 @@ Iteration 6 exit checklist
 
 Issue `I7-1`: Visual damage states
 
-- [ ] Add flash, shake, and crack states tied to engine events.
-- [ ] Use CSS classes over inline styles.
-- [ ] Keep animation methods idempotent.
+- [x] Add flash, shake, and crack states tied to engine events.
+- [x] Use CSS classes over inline styles.
+- [x] Keep animation methods idempotent.
 
 Issue `I7-2`: Part destruction flow
 

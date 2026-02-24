@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { loadSentencesFromContent } from "./core";
 import App from "./App";
 
@@ -54,6 +54,43 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "Next Sentence" }));
     expect(screen.getByRole("button", { name: "enfants" })).toBeInTheDocument();
     expect(screen.getByText("Sentence 2 of 2")).toBeInTheDocument();
+  });
+
+  test("applies flash/shake and persistent crack classes from boss damage events", () => {
+    vi.useFakeTimers();
+    try {
+      const { container } = render(<App />);
+
+      const renderer = screen.getByLabelText("Boss renderer");
+      const hornLeft = container.querySelector("g#horn_left");
+      expect(hornLeft).not.toBeNull();
+      expect(hornLeft).not.toHaveClass("is-cracked");
+
+      fireEvent.click(screen.getByRole("button", { name: "maison" }));
+      fireEvent.click(screen.getByRole("button", { name: "NOUN" }));
+      fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+
+      expect(renderer).toHaveClass("is-flashing");
+      expect(renderer).toHaveClass("is-shaking");
+      expect(hornLeft).toHaveClass("is-cracked");
+
+      act(() => {
+        vi.advanceTimersByTime(180);
+      });
+      expect(renderer).not.toHaveClass("is-flashing");
+      expect(renderer).toHaveClass("is-shaking");
+
+      act(() => {
+        vi.advanceTimersByTime(120);
+      });
+      expect(renderer).not.toHaveClass("is-shaking");
+
+      fireEvent.click(screen.getByRole("button", { name: "Next Sentence" }));
+      fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+      expect(hornLeft).toHaveClass("is-cracked");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("disables Validate Round when the boss is defeated", () => {

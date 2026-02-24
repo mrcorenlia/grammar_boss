@@ -2,6 +2,14 @@ import type { BossPartState, BossState } from "../core"
 
 export type BossDamageEvent =
   | {
+      type: "boss.part_damaged"
+      bossId: string
+      partId: string
+      svgElementId: string
+      damage: number
+      remainingHP: number
+    }
+  | {
       type: "boss.part_destroyed"
       bossId: string
       partId: string
@@ -80,6 +88,18 @@ export const applyDamageToBossState = (
     const damageToCurrentPart = Math.min(activePart.currentHP, remainingDamage)
     activePart.currentHP -= damageToCurrentPart
     remainingDamage -= damageToCurrentPart
+
+    // Emit part damage before any possible destruction event for deterministic ordering.
+    if (damageToCurrentPart > 0) {
+      events.push({
+        type: "boss.part_damaged",
+        bossId: state.id,
+        partId: activePart.id,
+        svgElementId: activePart.svgElementId,
+        damage: damageToCurrentPart,
+        remainingHP: activePart.currentHP
+      })
+    }
 
     if (activePart.currentHP <= 0) {
       activePart.currentHP = 0

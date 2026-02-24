@@ -59,6 +59,85 @@
   font-size: 0.9rem;
 }
 
+.boss-renderer {
+  margin-top: 1rem;
+  padding: 0.85rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: #ffffff;
+}
+
+.boss-renderer svg {
+  width: 100%;
+  height: auto;
+}
+
+.boss-renderer.is-flashing {
+  animation: boss-flash 180ms ease-out;
+}
+
+.boss-renderer.is-shaking {
+  animation: boss-shake 260ms ease-in-out;
+}
+
+.boss-part rect {
+  fill: #dbeafe;
+  stroke: #334155;
+  stroke-width: 2px;
+  transition: fill 160ms ease, stroke 160ms ease, opacity 160ms ease;
+}
+
+.boss-part text {
+  fill: #0f172a;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.boss-part.is-active rect {
+  fill: #fef3c7;
+  stroke: #b45309;
+}
+
+.boss-part.is-cracked rect {
+  stroke: #b91c1c;
+  stroke-dasharray: 5 3;
+}
+
+.boss-part.is-destroyed rect {
+  fill: #cbd5e1;
+  opacity: 0.45;
+}
+
+@keyframes boss-flash {
+  0% {
+    filter: brightness(1.35);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+@keyframes boss-shake {
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-3px);
+  }
+  40% {
+    transform: translateX(3px);
+  }
+  60% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
 .sentence-renderer {
   display: flex;
   flex-wrap: wrap;

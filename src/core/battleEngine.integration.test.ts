@@ -815,15 +815,40 @@ describe("battleEngine score+combo integration", () => {
     })
 
     expect(firstRound.bossState?.currentHP).toBe(170)
-    expect(firstRound.bossEvents).toEqual([])
+    expect(firstRound.bossEvents).toEqual([
+      {
+        type: "boss.part_damaged",
+        bossId: bossTemplate.id,
+        partId: "horn_left",
+        svgElementId: "horn_left",
+        damage: 10,
+        remainingHP: 20
+      }
+    ])
     expect(secondRound.bossState?.currentHP).toBe(140)
     expect(secondRound.bossState?.activePartId).toBe("horn_right")
     expect(secondRound.bossEvents).toEqual([
+      {
+        type: "boss.part_damaged",
+        bossId: bossTemplate.id,
+        partId: "horn_left",
+        svgElementId: "horn_left",
+        damage: 20,
+        remainingHP: 0
+      },
       {
         type: "boss.part_destroyed",
         bossId: bossTemplate.id,
         partId: "horn_left",
         svgElementId: "horn_left"
+      },
+      {
+        type: "boss.part_damaged",
+        bossId: bossTemplate.id,
+        partId: "horn_right",
+        svgElementId: "horn_right",
+        damage: 10,
+        remainingHP: 20
       }
     ])
     expect(engine.getState().bossState).toEqual(secondRound.bossState)
