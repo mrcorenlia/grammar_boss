@@ -113,6 +113,9 @@ describe("answerTracking", () => {
       correct: 1,
       incorrect: 1
     })
+    expect(updatedState.playerStats.byTag).toEqual({})
+    expect(updatedState.playerStats.avgResponseTimeMs).toBeNull()
+    expect(updatedState.playerStats.timedRounds).toBe(0)
     expect(
       updatedState.playerStats.confusionByDimension.partOfSpeech?.ADJ?.ADV
     ).toBe(1)
@@ -131,6 +134,61 @@ describe("answerTracking", () => {
     expect(nextState.roundIndex).toBe(1)
     expect(nextState.playerStats).toEqual(initialState.playerStats)
     expect(nextState.solvedKeys).toEqual(initialState.solvedKeys)
+  })
+
+  test("updates tag stats and average response time when round context is provided", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const outcomes: ValidationInteractionOutcome[] = [
+      {
+        mode: "tagging",
+        sentenceId: sentence.id,
+        interactionId: "t1",
+        dimension: "partOfSpeech",
+        expected: "DET",
+        received: "DET",
+        correct: true
+      },
+      {
+        mode: "tagging",
+        sentenceId: sentence.id,
+        interactionId: "t2",
+        dimension: "partOfSpeech",
+        expected: "ADJ",
+        received: "ADV",
+        correct: false
+      }
+    ]
+
+    const first = updateAnswerTrackingState(createInitialAnswerTrackingState(), outcomes, {
+      sentenceTags: sentence.tags,
+      elapsedMs: 12_000
+    })
+    const second = updateAnswerTrackingState(first, outcomes, {
+      sentenceTags: sentence.tags,
+      elapsedMs: 18_000
+    })
+
+    expect(first.playerStats.byTag).toEqual({
+      agreement: {
+        attempts: 2,
+        correct: 1,
+        incorrect: 1
+      },
+      gn: {
+        attempts: 2,
+        correct: 1,
+        incorrect: 1
+      }
+    })
+    expect(first.playerStats.timedRounds).toBe(1)
+    expect(first.playerStats.avgResponseTimeMs).toBe(12_000)
+    expect(second.playerStats.timedRounds).toBe(2)
+    expect(second.playerStats.avgResponseTimeMs).toBe(15_000)
   })
 
   test("lists structure interactions as part-level descriptors", () => {

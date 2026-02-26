@@ -37,6 +37,9 @@ export { calculateComboMultiplier, createInitialComboState, updateComboState } f
 export type { RoundScoreInput, RoundScoreResult, SpeedBonusHook, SpeedBonusHookContext } from "./score"
 export { calculateBaseScore, calculateRoundScore } from "./score"
 
+// Adaptive sentence selection helpers used by Iteration 8.
+export { calculateAdaptiveSentenceWeight, selectAdaptiveSentenceIndex } from "./adaptiveDifficulty"
+
 // Answer tracking contracts used for cross-round locking and player stats.
 export { buildInteractionKey, createInitialAnswerTrackingState, deriveRoundConstraints, listAgreementInteractions, listGNLinkInteractions, listStructureInteractions, listTaggingInteractions, updateAnswerTrackingState } from "./answerTracking"
 export type { PreAnsweredRule } from "./answerTracking"

@@ -122,6 +122,7 @@ export type AgreementModeUserInput = {
 9. Derive round answer constraints (`locked`, `preAnswered`, `eligible`) before validation.
 10. Track cross-round answer outcomes and in-memory player stats.
 11. Accept optional `elapsedMs` timing input from UI and apply optional speed-bonus hooks.
+12. Expose stats that allow adaptive sentence selection toward weak tags.
 
 Example round output contract:
 
@@ -158,6 +159,9 @@ type PlayerStats = {
   totals: StatsBucket;
   byMode: Partial<Record<GameMode, StatsBucket>>;
   byDimension: Record<string, StatsBucket>;
+  byTag: Record<string, StatsBucket>;
+  avgResponseTimeMs: number | null;
+  timedRounds: number;
   confusionByDimension: Record<string, Record<string, Record<string, number>>>;
 };
 ```
@@ -206,6 +210,7 @@ To prevent hardcoded answer coupling:
 ```text
 /src
   /core
+    adaptiveDifficulty.ts
     battleEngine.ts
     combo.ts
     feedback.ts

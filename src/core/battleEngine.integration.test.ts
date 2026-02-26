@@ -71,6 +71,9 @@ describe("battleEngine score+combo integration", () => {
           },
           byMode: {},
           byDimension: {},
+          byTag: {},
+          avgResponseTimeMs: null,
+          timedRounds: 0,
           confusionByDimension: {}
         }
       }
@@ -185,6 +188,71 @@ describe("battleEngine score+combo integration", () => {
       comboBonus: 0,
       speedBonus: 0
     })
+  })
+
+  test("updates tag-level stats and timing aggregates after rounds", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const engine = createBattleEngine(
+      {},
+      {
+        basePointsPerCorrect: 10
+      }
+    )
+
+    const first = engine.validateRound({
+      mode: "tagging",
+      sentence,
+      userInput: {
+        tokenIdToPOS: {
+          t1: "DET"
+        }
+      },
+      elapsedMs: 12_000
+    })
+
+    const firstAttemptCount = sentence.tokens.length
+    expect(first.playerStats.byTag.agreement).toEqual({
+      attempts: firstAttemptCount,
+      correct: 1,
+      incorrect: firstAttemptCount - 1
+    })
+    expect(first.playerStats.byTag.gn).toEqual({
+      attempts: firstAttemptCount,
+      correct: 1,
+      incorrect: firstAttemptCount - 1
+    })
+    expect(first.playerStats.timedRounds).toBe(1)
+    expect(first.playerStats.avgResponseTimeMs).toBe(12_000)
+
+    const second = engine.validateRound({
+      mode: "tagging",
+      sentence,
+      userInput: {
+        tokenIdToPOS: {
+          t2: "ADV"
+        }
+      },
+      elapsedMs: 18_000
+    })
+
+    const secondAttemptCount = firstAttemptCount - 1
+    expect(second.playerStats.byTag.agreement).toEqual({
+      attempts: firstAttemptCount + secondAttemptCount,
+      correct: 1,
+      incorrect: firstAttemptCount + secondAttemptCount - 1
+    })
+    expect(second.playerStats.byTag.gn).toEqual({
+      attempts: firstAttemptCount + secondAttemptCount,
+      correct: 1,
+      incorrect: firstAttemptCount + secondAttemptCount - 1
+    })
+    expect(second.playerStats.timedRounds).toBe(2)
+    expect(second.playerStats.avgResponseTimeMs).toBe(15_000)
   })
 
   test("locks previously solved tagging interactions when a sentence repeats", () => {

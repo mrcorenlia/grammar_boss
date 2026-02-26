@@ -169,6 +169,18 @@ const clonePlayerStats = (value: PlayerStats): PlayerStats => ({
       }
     ])
   ),
+  byTag: Object.fromEntries(
+    Object.entries(value.byTag).map(([tag, bucket]) => [
+      tag,
+      {
+        attempts: bucket.attempts,
+        correct: bucket.correct,
+        incorrect: bucket.incorrect
+      }
+    ])
+  ),
+  avgResponseTimeMs: value.avgResponseTimeMs,
+  timedRounds: value.timedRounds,
   confusionByDimension: Object.fromEntries(
     Object.entries(value.confusionByDimension).map(([dimension, expectedMap]) => [
       dimension,
@@ -481,7 +493,11 @@ export const createBattleEngine = (
     scoreState = nextScoreState
     answerTrackingState = updateAnswerTrackingState(
       answerTrackingState,
-      supportsRoundConstraints ? eligibleOutcomes : []
+      supportsRoundConstraints ? eligibleOutcomes : [],
+      {
+        sentenceTags: payload.sentence.tags,
+        elapsedMs: payload.elapsedMs ?? null
+      }
     )
 
     let bossEvents: BossDamageEvent[] = []

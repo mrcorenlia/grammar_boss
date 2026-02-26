@@ -134,9 +134,11 @@ Example SVG structure:
 
 ```ts
 type PlayerStats = {
-  accuracyByTag: Record<string, number>;
-  avgResponseTime: number;
+  byTag: Record<string, { attempts: number; correct: number; incorrect: number }>;
+  avgResponseTimeMs: number | null;
+  timedRounds: number;
 };
 ```
 
+`accuracyByTag` is derived as `correct / attempts` from `byTag`.
 Sentence selection should be weighted toward weaker tags.

@@ -26,6 +26,11 @@ export type PreAnsweredRuleContext = {
 
 export type PreAnsweredRule = (context: PreAnsweredRuleContext) => boolean
 
+type UpdateAnswerTrackingContext = {
+  sentenceTags?: string[]
+  elapsedMs?: number | null
+}
+
 const createInitialStatsBucket = (): StatsBucket => ({
   attempts: 0,
   correct: 0,
@@ -51,6 +56,11 @@ const clonePlayerStats = (stats: PlayerStats): PlayerStats => ({
       cloneStatsBucket(bucket)
     ])
   ),
+  byTag: Object.fromEntries(
+    Object.entries(stats.byTag).map(([tag, bucket]) => [tag, cloneStatsBucket(bucket)])
+  ),
+  avgResponseTimeMs: stats.avgResponseTimeMs,
+  timedRounds: stats.timedRounds,
   confusionByDimension: Object.fromEntries(
     Object.entries(stats.confusionByDimension).map(([dimension, expectedMap]) => [
       dimension,
@@ -72,6 +82,45 @@ const incrementStatsBucket = (bucket: StatsBucket, correct: boolean): void => {
   }
 
   bucket.incorrect += 1
+}
+
+const normalizeSentenceTags = (tags: string[] | undefined): string[] => {
+  if (!tags) {
+    return []
+  }
+
+  const normalized = new Set<string>()
+  for (const tag of tags) {
+    const normalizedTag = typeof tag === "string" ? tag.trim().toLowerCase() : ""
+    if (normalizedTag.length > 0) {
+      normalized.add(normalizedTag)
+    }
+  }
+
+  return Array.from(normalized)
+}
+
+const normalizeElapsedMs = (elapsedMs: number | null | undefined): number | null => {
+  if (elapsedMs === null || elapsedMs === undefined) {
+    return null
+  }
+
+  if (typeof elapsedMs !== "number" || !Number.isFinite(elapsedMs)) {
+    return null
+  }
+
+  return Math.max(0, Math.trunc(elapsedMs))
+}
+
+const updateAvgResponseTimeMs = (
+  previousAverage: number | null,
+  previousCount: number,
+  elapsedMs: number
+): number => {
+  const normalizedCount = Math.max(0, Math.trunc(previousCount))
+  const safeAverage = previousAverage ?? 0
+  const nextCount = normalizedCount + 1
+  return (safeAverage * normalizedCount + elapsedMs) / nextCount
 }
 
 const listInteractionsForMode = (
@@ -226,6 +275,9 @@ export const createInitialAnswerTrackingState = (): AnswerTrackingState => ({
     totals: createInitialStatsBucket(),
     byMode: {},
     byDimension: {},
+    byTag: {},
+    avgResponseTimeMs: null,
+    timedRounds: 0,
     confusionByDimension: {}
   }
 })
@@ -278,10 +330,13 @@ export const deriveRoundConstraints = (
 // Applies round outcomes into solved interaction keys and aggregate player stats.
 export const updateAnswerTrackingState = (
   previousState: AnswerTrackingState,
-  outcomes: ValidationInteractionOutcome[]
+  outcomes: ValidationInteractionOutcome[],
+  context: UpdateAnswerTrackingContext = {}
 ): AnswerTrackingState => {
   const nextSolvedKeys = { ...previousState.solvedKeys }
   const nextPlayerStats = clonePlayerStats(previousState.playerStats)
+  const sentenceTags = normalizeSentenceTags(context.sentenceTags)
+  const elapsedMs = normalizeElapsedMs(context.elapsedMs)
 
   for (const outcome of outcomes) {
     incrementStatsBucket(nextPlayerStats.totals, outcome.correct)
@@ -295,6 +350,12 @@ export const updateAnswerTrackingState = (
       nextPlayerStats.byDimension[outcome.dimension] ?? createInitialStatsBucket()
     incrementStatsBucket(dimensionBucket, outcome.correct)
     nextPlayerStats.byDimension[outcome.dimension] = dimensionBucket
+
+    for (const tag of sentenceTags) {
+      const tagBucket = nextPlayerStats.byTag[tag] ?? createInitialStatsBucket()
+      incrementStatsBucket(tagBucket, outcome.correct)
+      nextPlayerStats.byTag[tag] = tagBucket
+    }
 
     if (outcome.correct) {
       const solvedKey = buildInteractionKey(
@@ -318,6 +379,15 @@ export const updateAnswerTrackingState = (
       (confusionByExpected[outcome.expected] = {})
     confusionByReceived[outcome.received] =
       (confusionByReceived[outcome.received] ?? 0) + 1
+  }
+
+  if (elapsedMs !== null) {
+    nextPlayerStats.avgResponseTimeMs = updateAvgResponseTimeMs(
+      nextPlayerStats.avgResponseTimeMs,
+      nextPlayerStats.timedRounds,
+      elapsedMs
+    )
+    nextPlayerStats.timedRounds += 1
   }
 
   return {

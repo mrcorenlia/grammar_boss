@@ -254,9 +254,9 @@ Issue `I8-1`: Timing and round polish
 
 Issue `I8-2`: Adaptive difficulty selector
 
-- [ ] Add `PlayerStats` tracking model.
-- [ ] Update stats after each round.
-- [ ] Weight sentence selection toward weak tags.
+- [x] Add `PlayerStats` tracking model.
+- [x] Update stats after each round.
+- [x] Weight sentence selection toward weak tags.
 
 Issue `I8-3`: Final hardening
 

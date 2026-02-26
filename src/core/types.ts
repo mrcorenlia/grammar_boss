@@ -157,6 +157,9 @@ export type PlayerStats = {
   totals: StatsBucket;
   byMode: Partial<Record<GameMode, StatsBucket>>;
   byDimension: Record<string, StatsBucket>;
+  byTag: Record<string, StatsBucket>;
+  avgResponseTimeMs: number | null;
+  timedRounds: number;
   // dimension -> expected -> received -> count
   confusionByDimension: Record<string, Record<string, Record<string, number>>>;
 };

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  selectAdaptiveSentenceIndex,
   createBattleEngine,
   loadBossesFromContent,
   loadSentencesFromContent,
@@ -358,7 +359,21 @@ function App() {
             type="button"
             className="next-sentence__button"
             onClick={() => {
-              setSentenceIndex((currentIndex) => (currentIndex + 1) % sentences.length);
+              setSentenceIndex((currentIndex) => {
+                const playerStats =
+                  battleEngine.getState().answerTrackingState.playerStats;
+                const adaptiveIndex = selectAdaptiveSentenceIndex({
+                  sentences,
+                  currentSentenceIndex: currentIndex,
+                  playerStats
+                });
+
+                if (adaptiveIndex < 0) {
+                  return currentIndex;
+                }
+
+                return adaptiveIndex;
+              });
               setAwaitingNextSentence(false);
               setLastResult(null);
             }}
