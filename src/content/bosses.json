@@ -1,0 +1,31 @@
+[
+  {
+    "id": "b1",
+    "name": "Accord Dragon",
+    "baseHP": 100,
+    "allowedTags": ["agreement", "gn", "structure", "tagging"],
+    "parts": [
+      {
+        "id": "horn_left",
+        "name": "Left Horn",
+        "maxHP": 20,
+        "currentHP": 20,
+        "svgElementId": "horn_left"
+      },
+      {
+        "id": "arm_left",
+        "name": "Left Arm",
+        "maxHP": 30,
+        "currentHP": 30,
+        "svgElementId": "arm_left"
+      },
+      {
+        "id": "core",
+        "name": "Core",
+        "maxHP": 50,
+        "currentHP": 50,
+        "svgElementId": "core"
+      }
+    ]
+  }
+]

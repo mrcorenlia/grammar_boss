@@ -1,0 +1,114 @@
+[
+  {
+    "id": "s1",
+    "text": "La petite maison rouge est belle.",
+    "difficulty": 2,
+    "tags": ["agreement", "gn", "structure"],
+    "tokens": [
+      { "id": "t1", "text": "La", "partOfSpeech": "DET", "gender": "f", "number": "s" },
+      { "id": "t2", "text": "petite", "partOfSpeech": "ADJ", "gender": "f", "number": "s" },
+      { "id": "t3", "text": "maison", "partOfSpeech": "NOUN", "gender": "f", "number": "s" },
+      { "id": "t4", "text": "rouge", "partOfSpeech": "ADJ", "gender": "f", "number": "s" },
+      { "id": "t5", "text": "est", "partOfSpeech": "VERB" },
+      { "id": "t6", "text": "belle", "partOfSpeech": "ADJ", "gender": "f", "number": "s" },
+      { "id": "t7", "text": ".", "partOfSpeech": "PUNCT" }
+    ],
+    "structure": {
+      "subjectTokenIds": ["t1", "t2", "t3", "t4"],
+      "predicateTokenIds": ["t5", "t6"],
+      "complementTokenIds": []
+    },
+    "groups": {
+      "gn": [
+        {
+          "nounId": "t3",
+          "determinerId": "t1",
+          "adjectiveIds": ["t2", "t4"]
+        }
+      ]
+    }
+  },
+  {
+    "id": "s2",
+    "text": "Les chiens courent dans le parc.",
+    "difficulty": 2,
+    "tags": ["agreement", "preposition", "structure"],
+    "tokens": [
+      { "id": "u1", "text": "Les", "partOfSpeech": "DET", "gender": "m", "number": "p" },
+      { "id": "u2", "text": "chiens", "partOfSpeech": "NOUN", "gender": "m", "number": "p" },
+      { "id": "u3", "text": "courent", "partOfSpeech": "VERB" },
+      { "id": "u4", "text": "dans", "partOfSpeech": "ADP" },
+      { "id": "u5", "text": "le", "partOfSpeech": "DET", "gender": "m", "number": "s" },
+      { "id": "u6", "text": "parc", "partOfSpeech": "NOUN", "gender": "m", "number": "s" },
+      { "id": "u7", "text": ".", "partOfSpeech": "PUNCT" }
+    ],
+    "structure": {
+      "subjectTokenIds": ["u1", "u2"],
+      "predicateTokenIds": ["u3"],
+      "complementTokenIds": ["u4", "u5", "u6"]
+    },
+    "groups": {
+      "gn": [
+        { "nounId": "u2", "determinerId": "u1" },
+        { "nounId": "u6", "determinerId": "u5" }
+      ],
+      "phrases": [
+        {
+          "type": "prepositional",
+          "tokenIds": ["u4", "u5", "u6"]
+        }
+      ]
+    }
+  },
+  {
+    "id": "s3",
+    "text": "Mon ami fidèle lit un roman ancien.",
+    "difficulty": 3,
+    "tags": ["agreement", "gn", "tagging"],
+    "tokens": [
+      { "id": "v1", "text": "Mon", "partOfSpeech": "DET", "gender": "m", "number": "s" },
+      { "id": "v2", "text": "ami", "partOfSpeech": "NOUN", "gender": "m", "number": "s" },
+      { "id": "v3", "text": "fidèle", "partOfSpeech": "ADJ", "gender": "m", "number": "s" },
+      { "id": "v4", "text": "lit", "partOfSpeech": "VERB" },
+      { "id": "v5", "text": "un", "partOfSpeech": "DET", "gender": "m", "number": "s" },
+      { "id": "v6", "text": "roman", "partOfSpeech": "NOUN", "gender": "m", "number": "s" },
+      { "id": "v7", "text": "ancien", "partOfSpeech": "ADJ", "gender": "m", "number": "s" },
+      { "id": "v8", "text": ".", "partOfSpeech": "PUNCT" }
+    ],
+    "structure": {
+      "subjectTokenIds": ["v1", "v2", "v3"],
+      "predicateTokenIds": ["v4"],
+      "complementTokenIds": ["v5", "v6", "v7"]
+    },
+    "groups": {
+      "gn": [
+        { "nounId": "v2", "determinerId": "v1", "adjectiveIds": ["v3"] },
+        { "nounId": "v6", "determinerId": "v5", "adjectiveIds": ["v7"] }
+      ]
+    }
+  },
+  {
+    "id": "s4",
+    "text": "Cette fleur jaune pousse vite.",
+    "difficulty": 1,
+    "tags": ["agreement", "structure", "speed"],
+    "tokens": [
+      { "id": "w1", "text": "Cette", "partOfSpeech": "DET", "gender": "f", "number": "s" },
+      { "id": "w2", "text": "fleur", "partOfSpeech": "NOUN", "gender": "f", "number": "s" },
+      { "id": "w3", "text": "jaune", "partOfSpeech": "ADJ", "gender": "f", "number": "s" },
+      { "id": "w4", "text": "pousse", "partOfSpeech": "VERB" },
+      { "id": "w5", "text": "vite", "partOfSpeech": "ADV" },
+      { "id": "w6", "text": ".", "partOfSpeech": "PUNCT" }
+    ],
+    "structure": {
+      "subjectTokenIds": ["w1", "w2", "w3"],
+      "predicateTokenIds": ["w4", "w5"],
+      "complementTokenIds": []
+    },
+    "groups": {
+      "gn": [
+        { "nounId": "w2", "determinerId": "w1", "adjectiveIds": ["w3"] }
+      ]
+    }
+  }
+]
