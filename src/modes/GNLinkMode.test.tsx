@@ -98,6 +98,44 @@ describe("GNLinkMode", () => {
     expect(screen.queryByText("petite")).not.toBeInTheDocument()
   })
 
+  test("autofills dependent-to-noun links when secret trigger version changes", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const submittedPayloads: Array<{ dependentIdToNounId: Record<string, string> }> = []
+    const { rerender } = render(
+      <GNLinkMode
+        sentence={sentence}
+        onSubmit={(payload) => submittedPayloads.push(payload)}
+        lastResult={null}
+        secretAutofillVersion={0}
+      />
+    )
+
+    rerender(
+      <GNLinkMode
+        sentence={sentence}
+        onSubmit={(payload) => submittedPayloads.push(payload)}
+        lastResult={null}
+        secretAutofillVersion={1}
+      />
+    )
+    fireEvent.click(screen.getByRole("button", { name: "Validate Round" }))
+
+    expect(submittedPayloads).toEqual([
+      {
+        dependentIdToNounId: {
+          t1: "t3",
+          t2: "t3",
+          t4: "t3"
+        }
+      }
+    ])
+  })
+
   test("renders shared validation feedback output", () => {
     const sentence = loadSentencesFromContent()[0]
     expect(sentence).toBeDefined()

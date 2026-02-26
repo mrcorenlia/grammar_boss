@@ -106,6 +106,46 @@ describe("StructureMode", () => {
     ])
   })
 
+  test("autofills structure selections when the secret trigger version changes", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const submittedPayloads: Array<{
+      subjectTokenIds: string[]
+      predicateTokenIds: string[]
+      complementTokenIds?: string[]
+    }> = []
+    const { rerender } = render(
+      <StructureMode
+        sentence={sentence}
+        onSubmit={(payload) => submittedPayloads.push(payload)}
+        lastResult={null}
+        secretAutofillVersion={0}
+      />
+    )
+
+    rerender(
+      <StructureMode
+        sentence={sentence}
+        onSubmit={(payload) => submittedPayloads.push(payload)}
+        lastResult={null}
+        secretAutofillVersion={1}
+      />
+    )
+    fireEvent.click(screen.getByRole("button", { name: "Validate Round" }))
+
+    expect(submittedPayloads).toEqual([
+      {
+        subjectTokenIds: sentence.structure.subjectTokenIds,
+        predicateTokenIds: sentence.structure.predicateTokenIds,
+        complementTokenIds: sentence.structure.complementTokenIds ?? []
+      }
+    ])
+  })
+
   test("renders shared validation feedback output", () => {
     const sentence = loadSentencesFromContent()[0]
     expect(sentence).toBeDefined()

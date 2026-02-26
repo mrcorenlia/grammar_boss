@@ -117,6 +117,48 @@ describe("AgreementMode", () => {
     ).toBeInTheDocument()
   })
 
+  test("autofills noun agreement answers when secret trigger version changes", () => {
+    const sentence = loadSentencesFromContent()[0]
+    expect(sentence).toBeDefined()
+    if (!sentence) {
+      throw new Error("Sentence fixture must include at least one sentence.")
+    }
+
+    const submittedPayloads: Array<{
+      nounIdToGender: Record<string, string>
+      nounIdToNumber: Record<string, string>
+    }> = []
+    const { rerender } = render(
+      <AgreementMode
+        sentence={sentence}
+        onSubmit={(payload) => submittedPayloads.push(payload)}
+        lastResult={null}
+        secretAutofillVersion={0}
+      />
+    )
+
+    rerender(
+      <AgreementMode
+        sentence={sentence}
+        onSubmit={(payload) => submittedPayloads.push(payload)}
+        lastResult={null}
+        secretAutofillVersion={1}
+      />
+    )
+    fireEvent.click(screen.getByRole("button", { name: "Validate Round" }))
+
+    expect(submittedPayloads).toEqual([
+      {
+        nounIdToGender: {
+          t3: "f"
+        },
+        nounIdToNumber: {
+          t3: "s"
+        }
+      }
+    ])
+  })
+
   test("renders shared validation feedback output", () => {
     const sentence = loadSentencesFromContent()[0]
     expect(sentence).toBeDefined()

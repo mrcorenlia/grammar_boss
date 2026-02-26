@@ -12,6 +12,7 @@ type StructureModeProps = {
   sentence: Sentence
   onSubmit: (payload: StructureModeUserInput) => void
   lastResult: ValidationResult | null
+  secretAutofillVersion?: number
   submitDisabled?: boolean
   lockedPartIds?: string[]
   preAnsweredPartIds?: string[]
@@ -20,6 +21,7 @@ type StructureModeProps = {
 type StructureSelections = Record<StructurePartId, Set<string>>
 
 const STRUCTURE_PART_IDS: StructurePartId[] = ["subject", "predicate", "complement"]
+const EMPTY_INTERACTION_IDS: string[] = []
 
 const createEmptySelections = (): StructureSelections => ({
   subject: new Set<string>(),
@@ -36,9 +38,10 @@ function StructureMode({
   sentence,
   onSubmit,
   lastResult,
+  secretAutofillVersion = 0,
   submitDisabled = false,
-  lockedPartIds = [],
-  preAnsweredPartIds = []
+  lockedPartIds = EMPTY_INTERACTION_IDS,
+  preAnsweredPartIds = EMPTY_INTERACTION_IDS
 }: StructureModeProps) {
   const [activePartId, setActivePartId] = useState<StructurePartId>("subject")
   const [selections, setSelections] = useState<StructureSelections>(() => createEmptySelections())
@@ -106,6 +109,28 @@ function StructureMode({
       complementTokenIds: toSentenceOrderTokenIds(sentence, selections.complement)
     })
   }
+
+  useEffect(() => {
+    if (secretAutofillVersion <= 0) {
+      return
+    }
+
+    // Easter egg helper: prefill structure selections from sentence content answers.
+    const prefilled: StructureSelections = createEmptySelections()
+
+    if (!disabledPartIds.has("subject")) {
+      prefilled.subject = new Set(sentence.structure.subjectTokenIds)
+    }
+    if (!disabledPartIds.has("predicate")) {
+      prefilled.predicate = new Set(sentence.structure.predicateTokenIds)
+    }
+    if (!disabledPartIds.has("complement")) {
+      prefilled.complement = new Set(sentence.structure.complementTokenIds ?? [])
+    }
+
+    setSelections(prefilled)
+    setActivePartId("subject")
+  }, [disabledPartIds, secretAutofillVersion, sentence])
 
   useEffect(() => {
     // Every new sentence round starts with empty structure selections.

@@ -7,6 +7,7 @@ type AgreementModeProps = {
   sentence: Sentence
   onSubmit: (payload: AgreementModeUserInput) => void
   lastResult: ValidationResult | null
+  secretAutofillVersion?: number
   submitDisabled?: boolean
   lockedNounIds?: string[]
   preAnsweredNounIds?: string[]
@@ -16,6 +17,7 @@ type AgreementNoun = {
   nounId: string
   nounText: string
 }
+const EMPTY_INTERACTION_IDS: string[] = []
 
 const listAgreementNouns = (sentence: Sentence): AgreementNoun[] =>
   sentence.tokens.flatMap((token) => {
@@ -39,9 +41,10 @@ function AgreementMode({
   sentence,
   onSubmit,
   lastResult,
+  secretAutofillVersion = 0,
   submitDisabled = false,
-  lockedNounIds = [],
-  preAnsweredNounIds = []
+  lockedNounIds = EMPTY_INTERACTION_IDS,
+  preAnsweredNounIds = EMPTY_INTERACTION_IDS
 }: AgreementModeProps) {
   const [activeNounId, setActiveNounId] = useState<string | null>(null)
   const [nounIdToGender, setNounIdToGender] = useState<Record<string, string>>({})
@@ -178,6 +181,38 @@ function AgreementMode({
       nounIdToNumber: filteredNounIdToNumber
     })
   }
+
+  useEffect(() => {
+    if (secretAutofillVersion <= 0) {
+      return
+    }
+
+    // Easter egg helper: prefill noun agreement answers from sentence token data.
+    const nextNounIdToGender: Record<string, string> = {}
+    const nextNounIdToNumber: Record<string, string> = {}
+
+    for (const noun of agreementNouns) {
+      if (disabledNounIds.has(noun.nounId)) {
+        continue
+      }
+
+      const token = sentence.tokens.find((item) => item.id === noun.nounId)
+      if (!token) {
+        continue
+      }
+
+      if (token.gender === "m" || token.gender === "f") {
+        nextNounIdToGender[noun.nounId] = token.gender
+      }
+      if (token.number === "s" || token.number === "p") {
+        nextNounIdToNumber[noun.nounId] = token.number
+      }
+    }
+
+    setNounIdToGender(nextNounIdToGender)
+    setNounIdToNumber(nextNounIdToNumber)
+    setActiveNounId(null)
+  }, [agreementNouns, disabledNounIds, secretAutofillVersion, sentence.tokens])
 
   useEffect(() => {
     // Each sentence starts with fresh mode-local agreement selections.

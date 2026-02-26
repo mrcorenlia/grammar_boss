@@ -178,6 +178,17 @@ describe("App", () => {
     expect(screen.getByText("Sentence 2 of 2")).toBeInTheDocument();
   });
 
+  test("secret click autofills structure mode answers", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Structure" }));
+    fireEvent.click(screen.getByTestId("secret-autofill-trigger"));
+    fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+
+    expect(screen.getByText("Round correct: yes")).toBeInTheDocument();
+    expect(screen.getByText("Round score: 40")).toBeInTheDocument();
+  });
+
   test("supports GN link mode interaction flow through battleEngine", () => {
     render(<App />);
 
@@ -200,6 +211,17 @@ describe("App", () => {
     expect(screen.getByText("Sentence 2 of 2")).toBeInTheDocument();
   });
 
+  test("secret click autofills GN link mode answers", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "GN Link" }));
+    fireEvent.click(screen.getByTestId("secret-autofill-trigger"));
+    fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+
+    expect(screen.getByText("Round correct: yes")).toBeInTheDocument();
+    expect(screen.getByText("Round score: 60")).toBeInTheDocument();
+  });
+
   test("supports agreement mode interaction flow through battleEngine", () => {
     render(<App />);
 
@@ -215,5 +237,16 @@ describe("App", () => {
     expect(screen.getByText("160 / 180 HP")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Next Sentence" }));
     expect(screen.getByText("Sentence 2 of 2")).toBeInTheDocument();
+  });
+
+  test("secret click autofills agreement mode answers", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Agreement" }));
+    fireEvent.click(screen.getByTestId("secret-autofill-trigger"));
+    fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+
+    expect(screen.getByText("Round correct: yes")).toBeInTheDocument();
+    expect(screen.getByText("Round score: 20")).toBeInTheDocument();
   });
 });

@@ -98,12 +98,7 @@ function App() {
         <span
           className="secret-trigger"
           data-testid="secret-autofill-trigger"
-          onClick={() => {
-            // Only implemented modes can react to the secret trigger.
-            if (currentMode === "tagging") {
-              setSecretAutofillVersion((value) => value + 1);
-            }
-          }}
+          onClick={() => setSecretAutofillVersion((value) => value + 1)}
         >
           B
         </span>
@@ -193,6 +188,7 @@ function App() {
         <StructureMode
           sentence={currentSentence}
           lastResult={visibleResult}
+          secretAutofillVersion={secretAutofillVersion}
           submitDisabled={isBossDefeated || awaitingNextSentence}
           lockedPartIds={roundConstraints.lockedInteractionIds}
           preAnsweredPartIds={roundConstraints.preAnsweredInteractionIds}
@@ -221,6 +217,7 @@ function App() {
         <GNLinkMode
           sentence={currentSentence}
           lastResult={visibleResult}
+          secretAutofillVersion={secretAutofillVersion}
           submitDisabled={isBossDefeated || awaitingNextSentence}
           lockedLinkIds={roundConstraints.lockedInteractionIds}
           preAnsweredLinkIds={roundConstraints.preAnsweredInteractionIds}
@@ -249,6 +246,7 @@ function App() {
         <AgreementMode
           sentence={currentSentence}
           lastResult={visibleResult}
+          secretAutofillVersion={secretAutofillVersion}
           submitDisabled={isBossDefeated || awaitingNextSentence}
           lockedNounIds={roundConstraints.lockedInteractionIds}
           preAnsweredNounIds={roundConstraints.preAnsweredInteractionIds}

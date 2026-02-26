@@ -7,6 +7,7 @@ type GNLinkModeProps = {
   sentence: Sentence
   onSubmit: (payload: GNLinkModeUserInput) => void
   lastResult: ValidationResult | null
+  secretAutofillVersion?: number
   submitDisabled?: boolean
   lockedLinkIds?: string[]
   preAnsweredLinkIds?: string[]
@@ -24,6 +25,7 @@ type NounOption = {
   nounId: string
   nounText: string
 }
+const EMPTY_INTERACTION_IDS: string[] = []
 
 const listLinkableDependents = (sentence: Sentence): LinkableDependent[] => {
   const kindByDependentId = new Map<string, LinkKind>()
@@ -68,9 +70,10 @@ function GNLinkMode({
   sentence,
   onSubmit,
   lastResult,
+  secretAutofillVersion = 0,
   submitDisabled = false,
-  lockedLinkIds = [],
-  preAnsweredLinkIds = []
+  lockedLinkIds = EMPTY_INTERACTION_IDS,
+  preAnsweredLinkIds = EMPTY_INTERACTION_IDS
 }: GNLinkModeProps) {
   const [activeDependentId, setActiveDependentId] = useState<string | null>(null)
   const [dependentIdToNounId, setDependentIdToNounId] = useState<Record<string, string>>({})
@@ -179,6 +182,30 @@ function GNLinkMode({
 
     onSubmit({ dependentIdToNounId: filteredDependentIdToNounId })
   }
+
+  useEffect(() => {
+    if (secretAutofillVersion <= 0) {
+      return
+    }
+
+    // Easter egg helper: prefill GN links from sentence group answers.
+    const nextDependentIdToNounId: Record<string, string> = {}
+
+    for (const group of sentence.groups.gn) {
+      if (group.determinerId && !disabledDependentIds.has(group.determinerId)) {
+        nextDependentIdToNounId[group.determinerId] = group.nounId
+      }
+
+      for (const adjectiveId of group.adjectiveIds ?? []) {
+        if (!disabledDependentIds.has(adjectiveId)) {
+          nextDependentIdToNounId[adjectiveId] = group.nounId
+        }
+      }
+    }
+
+    setDependentIdToNounId(nextDependentIdToNounId)
+    setActiveDependentId(null)
+  }, [disabledDependentIds, secretAutofillVersion, sentence])
 
   useEffect(() => {
     setActiveDependentId(null)
