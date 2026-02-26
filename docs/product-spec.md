@@ -20,6 +20,7 @@ Grammar Boss Battle is a browser-based educational combat game where players def
 2. Visible boss damage.
 3. Modular learning modes.
 4. Replayable progression loops.
+5. Adaptive practice selection toward weak grammar tags.
 
 ## 2. Core Design Principles
 
@@ -77,7 +78,7 @@ Micro-loop target: 10-30 seconds.
 5. Calculate damage.
 6. Apply damage to boss state.
 7. Animate results.
-8. Load next sentence.
+8. Load next sentence using adaptive weak-tag weighting.
 
 ## 5. Functional Requirements
 
@@ -98,6 +99,7 @@ Must:
 2. Return structured `ValidationResult`.
 3. Track per-interaction outcomes for battle-level analytics.
 4. Lock previously solved interactions when the same sentence appears again in the same battle.
+5. Track per-tag accuracy stats and round timing aggregates for adaptive selection.
 
 ```ts
 type ValidationResult = {
@@ -134,12 +136,19 @@ Damage priority:
 2. Combo multiplier.
 3. Optional speed bonus.
 4. Only currently eligible interactions count toward score and damage.
+5. Current pacing bonus path awards a small bonus for 10-30 second rounds.
 
 ### 5.5 Combo System
 
 1. +1 combo for fully correct round.
 2. Reset on incorrect round.
 3. Multiplier scales 1x -> 2x -> 3x (max).
+
+### 5.6 Adaptive Difficulty Selector
+
+1. Sentence selection is weighted toward weaker sentence tags.
+2. Tag weakness is computed from tracked per-tag correctness ratios.
+3. Selector remains deterministic with stable tie-breaking.
 
 ## 6. Non-Functional Requirements
 

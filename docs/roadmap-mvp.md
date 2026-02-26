@@ -63,3 +63,4 @@ Exit criteria:
 1. Boss parts are independently destructible.
 2. Animation is idempotent and event-driven.
 3. Adaptive selector uses `accuracyByTag` and response time.
+   - Accuracy is derived from tracked `byTag` attempts/correctness.

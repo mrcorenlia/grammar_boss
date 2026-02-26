@@ -198,6 +198,26 @@ To prevent hardcoded answer coupling:
 2. Mode code must consume answer-bearing data via core content loading APIs.
 3. Core content loaders are responsible for reading local JSON fixtures and validating shape before use.
 
+### 4.6 Adaptive Selection Contract
+
+Adaptive sentence selection must:
+
+1. Live in `/core` as deterministic pure helpers.
+2. Weight candidate sentences toward weaker tags using tracked `PlayerStats.byTag`.
+3. Exclude the current sentence index from candidate selection.
+4. Use stable tie-breaking so repeated runs with the same input return the same index.
+
+Reference API:
+
+```ts
+calculateAdaptiveSentenceWeight(sentence: Sentence, playerStats: PlayerStats): number;
+selectAdaptiveSentenceIndex(input: {
+  sentences: Sentence[];
+  currentSentenceIndex: number;
+  playerStats: PlayerStats;
+}): number;
+```
+
 ## 5. UI Interaction Rules
 
 1. Token rendering is token-driven.
@@ -242,7 +262,6 @@ To prevent hardcoded answer coupling:
   /ui
     SentenceRenderer.tsx
     HPBar.tsx
-    ComboMeter.tsx
     Timer.tsx
 
   /animation

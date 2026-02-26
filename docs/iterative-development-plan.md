@@ -23,8 +23,8 @@ Source of truth: `AGENTS.md` takes precedence over this document
 | 4 | Score and Combo | `I4-*` | Iteration 3 | Done |
 | 5 | Boss HP Integration | `I5-*` | Iteration 4 | Done |
 | 6 | Additional Modes | `I6-*` | Iteration 5 | Done |
-| 7 | Animation and Part Destruction | `I7-*` | Iteration 5 | In Progress |
-| 8 | Polish and Adaptive Difficulty | `I8-*` | Iteration 6, 7 | Todo |
+| 7 | Animation and Part Destruction | `I7-*` | Iteration 5 | Done |
+| 8 | Polish and Adaptive Difficulty | `I8-*` | Iteration 6, 7 | Done |
 
 ## 3. Issues and Checklists
 
@@ -260,19 +260,19 @@ Issue `I8-2`: Adaptive difficulty selector
 
 Issue `I8-3`: Final hardening
 
-- [ ] Run full test suite and type checks.
-- [ ] Review architecture boundaries against `AGENTS.md`.
-- [ ] Update docs with final MVP behavior.
+- [x] Run full test suite and type checks.
+- [x] Review architecture boundaries against `AGENTS.md`.
+- [x] Update docs with final MVP behavior.
 
 Iteration 8 exit checklist
 
-- [ ] Adaptive selector works from tracked stats.
-- [ ] MVP behavior is stable across all modes.
-- [ ] Documentation reflects implemented behavior.
+- [x] Adaptive selector works from tracked stats.
+- [x] MVP behavior is stable across all modes.
+- [x] Documentation reflects implemented behavior.
 
 ## 4. Global Completion Checklist (Every Iteration)
 
-- [ ] Code and tests pass for touched modules.
-- [ ] Architecture constraints from `AGENTS.md` remain satisfied.
-- [ ] Relevant docs in `/docs` are updated.
+- [x] Code and tests pass for touched modules.
+- [x] Architecture constraints from `AGENTS.md` remain satisfied.
+- [x] Relevant docs in `/docs` are updated.
 - [ ] PR or commit includes change summary and test notes.

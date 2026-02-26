@@ -165,7 +165,7 @@ function App() {
         </span>
         attle
       </h1>
-      <p>Iteration 5 boss HP integration is complete.</p>
+      <p>Iteration 8 polish and adaptive difficulty are complete.</p>
       <p>
         Sentence {sentenceIndex + 1} of {sentences.length}
       </p>
