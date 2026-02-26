@@ -248,9 +248,9 @@ Iteration 7 exit checklist
 
 Issue `I8-1`: Timing and round polish
 
-- [ ] Add timer UI and timing capture hooks.
-- [ ] Add optional speed bonus calculation path.
-- [ ] Tune round pacing for 10-30 second loops.
+- [x] Add timer UI and timing capture hooks.
+- [x] Add optional speed bonus calculation path.
+- [x] Tune round pacing for 10-30 second loops.
 
 Issue `I8-2`: Adaptive difficulty selector
 

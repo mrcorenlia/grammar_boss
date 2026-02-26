@@ -5,12 +5,36 @@ import App from "./App";
 describe("App", () => {
   test("renders mode switch container", () => {
     render(<App />);
+    expect(screen.getByLabelText("Round timer")).toBeInTheDocument();
     expect(screen.getByLabelText("Boss HP")).toBeInTheDocument();
     expect(screen.getByRole("progressbar", { name: "Boss HP progress" })).toBeInTheDocument();
     expect(screen.getByText("Sentence 1 of 2")).toBeInTheDocument();
     expect(screen.getByLabelText("Mode switch")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Tagging" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Structure" })).toBeInTheDocument();
+  });
+
+  test("captures elapsed timing and applies target-pace speed bonus during submit", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-01T00:00:00Z"));
+    try {
+      render(<App />);
+
+      fireEvent.click(screen.getByRole("button", { name: "maison" }));
+      fireEvent.click(screen.getByRole("button", { name: "NOUN" }));
+
+      act(() => {
+        vi.advanceTimersByTime(12_000);
+      });
+      fireEvent.click(screen.getByRole("button", { name: "Validate Round" }));
+
+      expect(screen.getByText("Round score: 13")).toBeInTheDocument();
+      expect(screen.getByText("167 / 180 HP")).toBeInTheDocument();
+      expect(screen.getByText("12.0s")).toBeInTheDocument();
+      expect(screen.getByText("On target pace (paused)")).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("advances sentences and locks solved interactions when a sentence repeats", () => {

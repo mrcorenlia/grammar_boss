@@ -121,6 +121,7 @@ export type AgreementModeUserInput = {
 8. Emit boss damage events (`boss.part_damaged`, `boss.part_destroyed`, `boss.defeated`) for animation subscribers.
 9. Derive round answer constraints (`locked`, `preAnswered`, `eligible`) before validation.
 10. Track cross-round answer outcomes and in-memory player stats.
+11. Accept optional `elapsedMs` timing input from UI and apply optional speed-bonus hooks.
 
 Example round output contract:
 
@@ -198,6 +199,7 @@ To prevent hardcoded answer coupling:
 1. Token rendering is token-driven.
 2. Tokens are referenced by `id`, never by array index.
 3. UI must not assume fixed word order.
+4. Timer UI can capture round elapsed time and submit it through `elapsedMs` in round payloads.
 
 ## 6. Project Structure
 
